@@ -1,0 +1,42 @@
+# Data
+data_name = 'ml-100k' # ('ml-1m', 'ml-2k', 'ml-100k')
+
+# Model
+model_name = 'lgcn' # ('mf', 'emf', 'lgcn', 'egcn')
+
+# Sample
+sample_method = 'random' # ('random', 'explainable')
+
+# Train
+epoch_num = 200
+batch_size = 512
+
+# Test
+topk = 10
+test_interval = 10
+
+[mf]
+latent_dim = 64
+lr = 1e-3
+weight_decay = 1e-4
+
+[lgcn]
+latent_dim = 64
+layer_num = 3
+lr = 1e-3
+weight_decay = 1e-4
+
+[emf]
+latent_dim = 64
+neighbor_num = 20
+lr = 1e-3
+weight_decay = 1e-4
+
+[egcn]
+latent_dim = 64
+layer_num = 3
+neighbor_num = 20
+lr = 1e-3
+weight_decay = 1e-4
+
+

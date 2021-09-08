@@ -1,14 +1,13 @@
 # Data
 data_name = 'ml-100k' # ('ml-1m', 'ml-2k', 'ml-100k')
+neighbor_num = 20
 
 # Model
 model_name = 'lgcn' # ('mf', 'emf', 'lgcn', 'egcn')
-
-# Sample
-sample_method = 'random' # ('random', 'explainable')
+sample_method = 'explainable' # ('random', 'similarity', 'explainable')
 
 # Train
-epoch_num = 200
+epoch_num = 100
 batch_size = 512
 
 # Test
@@ -28,15 +27,12 @@ weight_decay = 1e-4
 
 [emf]
 latent_dim = 64
-neighbor_num = 20
 lr = 1e-3
 weight_decay = 1e-4
 
 [egcn]
 latent_dim = 64
 layer_num = 3
-neighbor_num = 20
 lr = 1e-3
 weight_decay = 1e-4
-
 

@@ -1,10 +1,9 @@
-import time
-
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
 from model import BaseModel
+from util import timer
 
 
 class Tester:
@@ -13,8 +12,14 @@ class Tester:
         self.model = model
         self.topk = topk
 
-    def test(self) -> (float, float, float):
-        eval_start = time.time()
+        self.test = self.__leave_one_out_test
+
+    # Todo: alternative evaluation strategies setting
+    def set_test_method(self, test_method: str):
+        pass
+
+    @timer
+    def __leave_one_out_test(self) -> (float, float, float):
         self.model.eval()
 
         hr_list, ndcg_list = [], []
@@ -33,8 +38,7 @@ class Tester:
             hr_list.append(self.calc_hr(pos_item, rec_list))
             ndcg_list.append(self.calc_ndcg(pos_item, rec_list))
 
-        eval_time = time.time() - eval_start
-        return np.mean(hr_list).item(), np.mean(ndcg_list).item(), eval_time
+        return np.mean(hr_list).item(), np.mean(ndcg_list).item()
 
     @staticmethod
     def calc_hr(iid, rec_list) -> float:

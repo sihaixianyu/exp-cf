@@ -16,10 +16,10 @@ class MF(BaseModel):
 
         self.to(self.device)
 
-    def forward(self, data):
-        users = data[:, 0]
-        pos_items = data[:, 1]
-        neg_items = data[:, 2]
+    def forward(self, batch_data):
+        users = batch_data[:, 0]
+        pos_items = batch_data[:, 1]
+        neg_items = batch_data[:, 2]
 
         users = torch.LongTensor(users).to(self.device)
         pos_items = torch.LongTensor(pos_items).to(self.device)
@@ -36,12 +36,12 @@ class MF(BaseModel):
 
         return loss
 
-    def predict(self, users, items):
-        users = torch.LongTensor(users).to(self.device)
-        items = torch.LongTensor(items).to(self.device)
+    def predict(self, batch_users, batch_items):
+        batch_users = torch.LongTensor(batch_users).to(self.device)
+        batch_items = torch.LongTensor(batch_items).to(self.device)
 
-        user_embs = self.embed_user(users)
-        item_embs = self.embed_item(items)
+        user_embs = self.embed_user(batch_users)
+        item_embs = self.embed_item(batch_items)
 
         pred_ratings = torch.sum(user_embs * item_embs, dim=1)
         pred_ratings = torch.sigmoid(pred_ratings)

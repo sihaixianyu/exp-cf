@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f54de613-87dd-4958-9a26-2f4855343d03" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k_emf_explainable.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k_lgcn_explainable.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k_mf_explainable.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k_mf_random.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/ml-100k/ui_exp_mat_20.npy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/egcn.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/egcn.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/delicious_mf.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/lastfm-2k_mf.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_lgcn.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_mf.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-1m_mf.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-2k_mf.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/config.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-100k/info_dict.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-100k/neg_dict.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-100k/neg_dict.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-100k/test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-100k/test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-100k/train.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-100k/train.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-100k/ui_csr_mat.npz" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-100k/ui_csr_mat.npz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-1m/info_dict.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-1m/neg_dict.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-1m/neg_dict.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-1m/test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-1m/test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-1m/train.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-1m/train.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-1m/ui_csr_mat.npz" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-1m/ui_csr_mat.npz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ml-2k/info_dict.pkl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/egcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/egcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/emf.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/emf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/lgcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/lgcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/mf.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/mf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="1xiuiBu2lkel2r6QcnM34IbiSLq" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/data/ml-100k" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data/ml-100k" />
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.egcn">
+    <configuration name="egcn" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="egcn" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="util" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="egcn" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/util.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.egcn" />
+      <item itemvalue="Python.util" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.egcn" />
+        <item itemvalue="Python.util" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f54de613-87dd-4958-9a26-2f4855343d03" name="Changes" comment="" />
+      <created>1630850354504</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1630850354504</updated>
+      <workItem from="1630850355727" duration="290000" />
+      <workItem from="1630854337165" duration="321000" />
+      <workItem from="1630894823184" duration="12992000" />
+      <workItem from="1630983614974" duration="5996000" />
+      <workItem from="1631019195638" duration="860000" />
+      <workItem from="1631070214488" duration="2157000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/egcn$egcn.coverage" NAME="egcn Coverage Results" MODIFIED="1631072401051" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/egcn$util.coverage" NAME="util Coverage Results" MODIFIED="1630911435480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/egcn$main.coverage" NAME="main Coverage Results" MODIFIED="1630854641840" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
+</project>

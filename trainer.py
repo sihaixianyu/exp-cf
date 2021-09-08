@@ -1,19 +1,21 @@
 import time
 
 import numpy as np
-from torch.nn import Module
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
+from model import BaseModel
+from util import timer
+
 
 class Trainer:
-    def __init__(self, loader: DataLoader, model: Module, optimizer: Optimizer):
+    def __init__(self, loader: DataLoader, model: BaseModel, optimizer: Optimizer):
         self.loader = loader
         self.model = model
         self.optimizer = optimizer
 
+    @timer
     def train(self) -> (float, float):
-        train_start = time.time()
         self.model.train()
 
         loss_list = []
@@ -26,5 +28,4 @@ class Trainer:
 
             loss_list.append(loss.cpu().item())
 
-        train_time = time.time() - train_start
-        return np.mean(loss_list).item(), train_time
+        return np.mean(loss_list).item()

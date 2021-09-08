@@ -1,42 +1,33 @@
-import sys
-from os import path
-
 import numpy as np
 import scipy.sparse as sp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import FloatTensor
-from tqdm import tqdm
 
 from dataset import Dataset
 from model import BaseModel
 
 
 class EGCN(BaseModel):
-    def __init__(self, dataset: Dataset, model_config: dict, data_dir: str):
+    def __init__(self, dataset: Dataset, model_config: dict):
         super(EGCN, self).__init__(dataset)
-        self.ui_mat = dataset.ui_mat
-        self.ui_csr_mat = dataset.ui_csr_mat
-        self.item_sim_mat = dataset.item_sim_mat
-
-        self.latent_dim = model_config['latent_num']
+        self.latent_dim = model_config['latent_dim']
         self.layer_num = model_config['layer_num']
-        self.neighbor_num = model_config['neighbor_num']
         self.weight_decay = model_config['weight_decay']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.graph = self.__build_graph()
-        self.ui_exp_mat = self.__build_exp_mat(data_dir)
+        self.graph = self.__build_graph(dataset.ui_csr_mat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
 
         self.to(self.device)
 
-    def forward(self, data):
-        users = data[:, 0]
-        pos_items = data[:, 1]
-        neg_items = data[:, 2]
+    def forward(self, batch_data):
+        users = batch_data[:, 0]
+        pos_items = batch_data[:, 1]
+        neg_items = batch_data[:, 2]
 
         all_user_embs, all_item_embs = self.compute()
 
@@ -55,7 +46,7 @@ class EGCN(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_mat[users, pos_items] * (1 - self.ui_exp_mat[users, neg_items])
+        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
         loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
         reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
                               pos_item_egos.norm(2).pow(2) +
@@ -63,11 +54,11 @@ class EGCN(BaseModel):
 
         return loss + reg_term * self.weight_decay
 
-    def predict(self, users, items):
+    def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.compute()
 
-        user_embs = all_user_embs[users]
-        item_embs = all_item_embs[items]
+        user_embs = all_user_embs[batch_users]
+        item_embs = all_item_embs[batch_items]
 
         pred_ratings = torch.mul(user_embs, item_embs)
         pred_ratings = torch.sum(pred_ratings, dim=1)
@@ -100,18 +91,17 @@ class EGCN(BaseModel):
 
         return all_user_embs, all_item_embs
 
-    def __build_graph(self):
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num),
-                                dtype=np.float32)
+    def __build_graph(self, ui_csr_mat):
+        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num), dtype=np.float32)
         adj_mat = adj_mat.tolil()
-        R = self.ui_csr_mat.tolil()
+        R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R
         adj_mat[self.user_num:, :self.user_num] = R.T
         adj_mat.todok()
 
         row_sum = np.array(adj_mat.sum(axis=1))
         d_inv = np.power(row_sum, -0.5).flatten()
+        # Solve the devide by 0 problem
         d_inv[np.isinf(d_inv)] = 0.
         d_mat = sp.diags(d_inv)
 
@@ -125,26 +115,8 @@ class EGCN(BaseModel):
         idx_tsr = torch.stack([row_tsr, col_tsr])
         val_tsr = torch.FloatTensor(coo_mat.data)
         graph = torch.sparse.FloatTensor(idx_tsr, val_tsr, torch.Size(coo_mat.shape))
-        graph = graph.coalesce().to(device)
 
-        return graph
+        return graph.coalesce().to(self.device)
 
-    def __build_exp_mat(self, data_dir):
-        exp_mat_path = path.join(data_dir, 'ui_exp_mat_{}.npy'.format(self.neighbor_num))
-        if path.exists(exp_mat_path):
-            print('Loading explainable matrix...')
-            ui_exp_mat = np.load(exp_mat_path)
-        else:
-            neighbors = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
-                         for row in self.item_sim_mat]
-
-            print('Building explainable matrix...')
-            ui_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
-            for user in tqdm(range(self.user_num), file=sys.stdout):
-                for item in range(self.item_num):
-                    ui_exp_mat[user][item] = sum(
-                        [self.ui_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
-
-            np.save(exp_mat_path, ui_exp_mat)
-
+    def __build_ui_exp_tsr(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)

@@ -12,8 +12,6 @@ from model import BaseModel
 class LGCN(BaseModel):
     def __init__(self, dataset: Dataset, model_config: dict):
         super(LGCN, self).__init__(dataset)
-        self.ui_csr_mat = dataset.ui_csr_mat
-
         self.latent_dim = model_config['latent_dim']
         self.layer_num = model_config['layer_num']
         self.weight_decay = model_config['weight_decay']
@@ -21,14 +19,14 @@ class LGCN(BaseModel):
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.graph = self.__build_graph()
+        self.graph = self.__build_graph(dataset.ui_csr_mat)
 
         self.to(self.device)
 
-    def forward(self, data):
-        users = data[:, 0]
-        pos_items = data[:, 1]
-        neg_items = data[:, 2]
+    def forward(self, batch_data):
+        users = batch_data[:, 0]
+        pos_items = batch_data[:, 1]
+        neg_items = batch_data[:, 2]
 
         all_user_embs, all_item_embs = self.compute()
 
@@ -54,11 +52,11 @@ class LGCN(BaseModel):
 
         return bpr_loss + reg_term * self.weight_decay
 
-    def predict(self, users, items):
+    def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.compute()
 
-        user_embs = all_user_embs[users]
-        item_embs = all_item_embs[items]
+        user_embs = all_user_embs[batch_users]
+        item_embs = all_item_embs[batch_items]
 
         pred_ratings = torch.mul(user_embs, item_embs)
         pred_ratings = torch.sum(pred_ratings, dim=1)
@@ -91,12 +89,11 @@ class LGCN(BaseModel):
 
         return all_user_embs, all_item_embs
 
-    def __build_graph(self):
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    def __build_graph(self, ui_csr_mat):
         adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num),
                                 dtype=np.float32)
         adj_mat = adj_mat.tolil()
-        R = self.ui_csr_mat.tolil()
+        R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R
         adj_mat[self.user_num:, :self.user_num] = R.T
         adj_mat.todok()
@@ -116,6 +113,5 @@ class LGCN(BaseModel):
         idx_tsr = torch.stack([row_tsr, col_tsr])
         val_tsr = torch.FloatTensor(coo_mat.data)
         graph = torch.sparse.FloatTensor(idx_tsr, val_tsr, torch.Size(coo_mat.shape))
-        graph = graph.coalesce().to(device)
 
-        return graph
+        return graph.coalesce().to(self.device)

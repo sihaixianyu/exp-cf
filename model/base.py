@@ -12,8 +12,8 @@ class BaseModel(nn.Module):
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    def forward(self, *args):
-        raise NotImplementedError
+    def forward(self, batch_data):
+        raise NotImplementedError('A model must implement forward() function!')
 
-    def predict(self, *args):
-        raise NotImplementedError
+    def predict(self, batch_users, batch_items):
+        raise NotImplementedError('A model must implement predict() function!')

@@ -1,3 +1,5 @@
+from os import path
+
 import numpy as np
 import scipy.sparse as sp
 import torch
@@ -10,17 +12,19 @@ from model import BaseModel
 
 
 class EGCN(BaseModel):
-    def __init__(self, dataset: Dataset, model_config: dict):
+    def __init__(self, dataset: Dataset, config: dict):
         super(EGCN, self).__init__(dataset)
-        self.latent_dim = model_config['latent_dim']
-        self.layer_num = model_config['layer_num']
-        self.weight_decay = model_config['weight_decay']
+        self.model_name = config['model_name']
+        self.latent_dim = config['latent_dim']
+        self.layer_num = config['layer_num']
+        self.weight_decay = config['weight_decay']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
         self.graph = self.__build_graph(dataset.ui_csr_mat)
         self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
+        self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
 
         self.to(self.device)
 
@@ -29,7 +33,7 @@ class EGCN(BaseModel):
         pos_items = batch_data[:, 1]
         neg_items = batch_data[:, 2]
 
-        all_user_embs, all_item_embs = self.compute()
+        all_user_embs, all_item_embs = self.__compute()
 
         user_embs = all_user_embs[users]
         pos_item_embs = all_item_embs[pos_items]
@@ -55,7 +59,7 @@ class EGCN(BaseModel):
         return loss + reg_term * self.weight_decay
 
     def predict(self, batch_users, batch_items):
-        all_user_embs, all_item_embs = self.compute()
+        all_user_embs, all_item_embs = self.__compute()
 
         user_embs = all_user_embs[batch_users]
         item_embs = all_item_embs[batch_items]
@@ -66,16 +70,22 @@ class EGCN(BaseModel):
 
         return pred_ratings
 
-    def get_embs(self, users, items):
+    def get_embs(self, users: FloatTensor, items: FloatTensor):
         with torch.no_grad():
-            all_user_embs, all_item_embs = self.compute()
+            all_user_embs, all_item_embs = self.__compute()
             user_embs = all_user_embs[users]
             item_embs = all_item_embs[items]
             embs = user_embs * item_embs
 
         return embs
 
-    def compute(self) -> (FloatTensor, FloatTensor):
+    def get_model_suffix(self, model_dir: str):
+        return path.join(model_dir, '{}_ld{}_ln{}_n{}.pth'.format(self.model_name,
+                                                                  self.latent_dim,
+                                                                  self.layer_num,
+                                                                  self.neighbor_num))
+
+    def __compute(self):
         embed_user_weight = self.embed_user.weight
         embed_item_weight = self.embed_item.weight
         emb_weight = torch.cat([embed_user_weight, embed_item_weight])
@@ -120,3 +130,6 @@ class EGCN(BaseModel):
 
     def __build_ui_exp_tsr(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)
+
+    def __build_item_sim_tsr(self, item_sim_tsr):
+        return torch.from_numpy(item_sim_tsr).to(self.device)

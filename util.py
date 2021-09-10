@@ -1,6 +1,7 @@
 import os
 import time
 from collections import Iterable
+from copy import copy
 from pprint import pprint
 
 
@@ -28,12 +29,12 @@ def color_print(content: str):
     print(f"\033[0;30;43m{content}\033[0m")
 
 
-def sep_print(content: any, desc=None, start=True, end=True, num=75):
+def sep_print(obj: any, desc=None, start=True, end=True, num=75):
     if start:
         print('-' * num)
     if desc:
         print(desc + ':')
-    pprint(content)
+    pprint(obj)
     if end:
         print('-' * num)
 

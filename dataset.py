@@ -13,9 +13,11 @@ import util
 
 
 class Dataset:
-    def __init__(self, data_dir: str, neighbor_num: int):
+    def __init__(self, data_dir: str, config: dict):
         self.data_dir = data_dir
-        self.neighbor_num = neighbor_num
+        self.data_name = config['data_name']
+        self.neighbor_num = config['neighbor_num']
+        self.sample_method = config['sample_method']
 
         self.train_arr, self.test_arr, self.ui_csr_mat, self.neg_dict = self.__load_data()
 
@@ -26,25 +28,18 @@ class Dataset:
         self.item_num = self.iu_mat.shape[0]
 
         self.user_pos_items = self.__build_user_pos_items()
+        self.user_sim_mat = self.__build_user_sim_mat()
         self.item_sim_mat = self.__build_item_sim_mat()
         self.ui_exp_mat = self.__build_ui_exp_mat()
 
-        # Normal sample strategy by default, we set neg_num=1 by default
-        self.sample = self.__random_sample
-
-    # Strategy pattern, available for modification in runtime
-    def set_sample_method(self, method_name: str):
-        if method_name == 'random':
+        if self.sample_method == 'random':
             self.sample = self.__random_sample
-        elif method_name == 'similarity':
+        elif self.sample_method == 'similarity':
             self.sample = self.__similarity_sample
-        elif method_name == 'explainable':
+        elif self.sample_method == 'explainable':
             self.sample = self.__explainable_sample
         else:
-            raise ValueError('No such sample method: %s' % method_name)
-
-    def set_neightbor_num(self, neighbor_num: int):
-        self.neighbor_num = neighbor_num
+            raise ValueError('No such sample method: %s' % self.sample_method)
 
     def get_train_data(self):
         print('Building train data...')
@@ -85,6 +80,11 @@ class Dataset:
             user_pos_items.append(self.ui_csr_mat[user].nonzero()[1])
 
         return user_pos_items
+
+    def __build_user_sim_mat(self):
+        user_sim_mat = cosine_similarity(self.ui_mat)
+        np.fill_diagonal(user_sim_mat, 0)
+        return user_sim_mat
 
     def __build_item_sim_mat(self):
         item_sim_mat = cosine_similarity(self.iu_mat)

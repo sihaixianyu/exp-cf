@@ -1,3 +1,5 @@
+from os import path
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,9 +9,10 @@ from model import BaseModel
 
 
 class MF(BaseModel):
-    def __init__(self, dataset: Dataset, model_config: dict):
+    def __init__(self, dataset: Dataset, config: dict):
         super(MF, self).__init__(dataset)
-        self.latent_dim = model_config['latent_dim']
+        self.model_name = config['model_name']
+        self.latent_dim = config['latent_dim']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
@@ -47,3 +50,7 @@ class MF(BaseModel):
         pred_ratings = torch.sigmoid(pred_ratings)
 
         return pred_ratings
+
+    def get_model_suffix(self, model_dir: str):
+        return path.join(model_dir, '{}_ld{}.pth'.format(self.model_name,
+                                                         self.latent_dim))

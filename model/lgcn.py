@@ -1,3 +1,5 @@
+from os import path
+
 import numpy as np
 import scipy.sparse as sp
 import torch
@@ -10,11 +12,12 @@ from model import BaseModel
 
 
 class LGCN(BaseModel):
-    def __init__(self, dataset: Dataset, model_config: dict):
+    def __init__(self, dataset: Dataset, config: dict):
         super(LGCN, self).__init__(dataset)
-        self.latent_dim = model_config['latent_dim']
-        self.layer_num = model_config['layer_num']
-        self.weight_decay = model_config['weight_decay']
+        self.model_name = config['model_name']
+        self.latent_dim = config['latent_dim']
+        self.layer_num = config['layer_num']
+        self.weight_decay = config['weight_decay']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
@@ -28,7 +31,7 @@ class LGCN(BaseModel):
         pos_items = batch_data[:, 1]
         neg_items = batch_data[:, 2]
 
-        all_user_embs, all_item_embs = self.compute()
+        all_user_embs, all_item_embs = self.__compute()
 
         user_embs = all_user_embs[users]
         pos_item_embs = all_item_embs[pos_items]
@@ -53,7 +56,7 @@ class LGCN(BaseModel):
         return bpr_loss + reg_term * self.weight_decay
 
     def predict(self, batch_users, batch_items):
-        all_user_embs, all_item_embs = self.compute()
+        all_user_embs, all_item_embs = self.__compute()
 
         user_embs = all_user_embs[batch_users]
         item_embs = all_item_embs[batch_items]
@@ -66,14 +69,19 @@ class LGCN(BaseModel):
 
     def get_embs(self, users, items):
         with torch.no_grad():
-            all_user_embs, all_item_embs = self.compute()
+            all_user_embs, all_item_embs = self.__compute()
             user_embs = all_user_embs[users]
             item_embs = all_item_embs[items]
             embs = user_embs * item_embs
 
         return embs
 
-    def compute(self) -> (FloatTensor, FloatTensor):
+    def get_model_suffix(self, model_dir: str):
+        return path.join(model_dir, '{}_ld{}_ln{}.pth'.format(self.model_name,
+                                                              self.latent_dim,
+                                                              self.layer_num))
+
+    def __compute(self) -> (FloatTensor, FloatTensor):
         embed_user_weight = self.embed_user.weight
         embed_item_weight = self.embed_item.weight
         emb_weight = torch.cat([embed_user_weight, embed_item_weight])

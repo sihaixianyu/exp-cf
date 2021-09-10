@@ -35,20 +35,20 @@ class Tester:
                 rec_list = torch.take(items, idxs).cpu().numpy().tolist()
 
             pos_item = items[0].item()
-            hr_list.append(self.calc_hr(pos_item, rec_list))
-            ndcg_list.append(self.calc_ndcg(pos_item, rec_list))
+            hr_list.append(calc_hr(pos_item, rec_list))
+            ndcg_list.append(calc_ndcg(pos_item, rec_list))
 
         return np.mean(hr_list).item(), np.mean(ndcg_list).item()
 
-    @staticmethod
-    def calc_hr(iid, rec_list) -> float:
-        if iid in rec_list:
-            return 1
-        return 0
 
-    @staticmethod
-    def calc_ndcg(iid, rec_list) -> float:
-        if iid in rec_list:
-            idx = rec_list.index(iid)
-            return np.reciprocal(np.log2(idx + 2))
-        return 0
+def calc_hr(tar_item, rec_list) -> float:
+    if tar_item in rec_list:
+        return 1
+    return 0
+
+
+def calc_ndcg(tar_item, rec_list) -> float:
+    if tar_item in rec_list:
+        idx = rec_list.index(tar_item)
+        return np.reciprocal(np.log2(idx + 2))
+    return 0

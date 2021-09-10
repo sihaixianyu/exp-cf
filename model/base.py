@@ -7,6 +7,9 @@ from dataset import Dataset
 class BaseModel(nn.Module):
     def __init__(self, dataset: Dataset):
         super(BaseModel, self).__init__()
+        self.data_name = dataset.data_name
+        self.sample_method = dataset.sample_method
+        self.neighbor_num = dataset.neighbor_num
         self.user_num = dataset.user_num
         self.item_num = dataset.item_num
 
@@ -17,3 +20,6 @@ class BaseModel(nn.Module):
 
     def predict(self, batch_users, batch_items):
         raise NotImplementedError('A model must implement predict() function!')
+
+    def get_model_suffix(self, model_dir: str):
+        raise NotImplementedError('A model must implement get_model_suffix() function!')

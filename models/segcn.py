@@ -8,16 +8,17 @@ import torch.nn.functional as F
 from torch import FloatTensor
 
 from dataset import Dataset
-from model import BaseModel
+from models import BaseModel
 
 
-class EGCN(BaseModel):
+class SEGCN(BaseModel):
     def __init__(self, dataset: Dataset, config: dict):
-        super(EGCN, self).__init__(dataset)
+        super(SEGCN, self).__init__(dataset)
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
+        self.alpha = config['alpha']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
@@ -52,11 +53,15 @@ class EGCN(BaseModel):
 
         exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
         loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
+
         reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
                               pos_item_egos.norm(2).pow(2) +
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
-        return loss + reg_term * self.weight_decay
+        item_sims = self.item_sim_tsr[pos_items, neg_items]
+        exp_term = (1 / 2) * ((pos_item_embs - neg_item_embs).norm(2).pow(2) * item_sims).sum() / float(len(users))
+
+        return loss + self.weight_decay * (reg_term + self.alpha * exp_term)
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -70,7 +75,7 @@ class EGCN(BaseModel):
 
         return pred_ratings
 
-    def get_embs(self, users: FloatTensor, items: FloatTensor):
+    def get_embs(self, users, items):
         with torch.no_grad():
             all_user_embs, all_item_embs = self.__compute()
             user_embs = all_user_embs[users]
@@ -80,12 +85,13 @@ class EGCN(BaseModel):
         return embs
 
     def get_model_suffix(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_n{}.pth'.format(self.model_name,
-                                                                  self.latent_dim,
-                                                                  self.layer_num,
-                                                                  self.neighbor_num))
+        return path.join(model_dir, '{}_ld{}_ln{}_n{}_a{}.pth'.format(self.model_name,
+                                                                      self.latent_dim,
+                                                                      self.layer_num,
+                                                                      self.neighbor_num,
+                                                                      self.alpha))
 
-    def __compute(self):
+    def __compute(self) -> (FloatTensor, FloatTensor):
         embed_user_weight = self.embed_user.weight
         embed_item_weight = self.embed_item.weight
         emb_weight = torch.cat([embed_user_weight, embed_item_weight])

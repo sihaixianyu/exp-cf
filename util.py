@@ -34,10 +34,9 @@ def sep_print(obj: any, desc=None, start=True, end=True, num=75):
         print('-' * num)
     if desc:
         print(desc + ':')
-    pprint(obj)
+    if isinstance(obj, str):
+        print(obj)
+    else:
+        pprint(obj)
     if end:
         print('-' * num)
-
-
-if __name__ == '__main__':
-    pass

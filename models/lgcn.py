@@ -8,24 +8,21 @@ import torch.nn.functional as F
 from torch import FloatTensor
 
 from dataset import Dataset
-from model import BaseModel
+from models import BaseModel
 
 
-class SEGCN(BaseModel):
+class LGCN(BaseModel):
     def __init__(self, dataset: Dataset, config: dict):
-        super(SEGCN, self).__init__(dataset)
+        super(LGCN, self).__init__(dataset)
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
-        self.alpha = config['alpha']
         self.weight_decay = config['weight_decay']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
         self.graph = self.__build_graph(dataset.ui_csr_mat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
-        self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
 
         self.to(self.device)
 
@@ -51,17 +48,12 @@ class SEGCN(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
-        loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
-
+        bpr_loss = torch.mean(F.softplus(neg_ratings - pos_ratings))
         reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
                               pos_item_egos.norm(2).pow(2) +
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
-        item_sims = self.item_sim_tsr[pos_items, neg_items]
-        exp_term = (1 / 2) * ((pos_item_embs - neg_item_embs).norm(2).pow(2) * item_sims).sum() / float(len(users))
-
-        return loss + self.weight_decay * (reg_term + 0.75 * exp_term)
+        return bpr_loss + reg_term * self.weight_decay
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -85,11 +77,9 @@ class SEGCN(BaseModel):
         return embs
 
     def get_model_suffix(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_n{}_a{}.pth'.format(self.model_name,
-                                                                      self.latent_dim,
-                                                                      self.layer_num,
-                                                                      self.neighbor_num,
-                                                                      self.alpha))
+        return path.join(model_dir, '{}_ld{}_ln{}.pth'.format(self.model_name,
+                                                              self.latent_dim,
+                                                              self.layer_num))
 
     def __compute(self) -> (FloatTensor, FloatTensor):
         embed_user_weight = self.embed_user.weight
@@ -108,7 +98,8 @@ class SEGCN(BaseModel):
         return all_user_embs, all_item_embs
 
     def __build_graph(self, ui_csr_mat):
-        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num), dtype=np.float32)
+        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num),
+                                dtype=np.float32)
         adj_mat = adj_mat.tolil()
         R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R
@@ -117,7 +108,6 @@ class SEGCN(BaseModel):
 
         row_sum = np.array(adj_mat.sum(axis=1))
         d_inv = np.power(row_sum, -0.5).flatten()
-        # Solve the devide by 0 problem
         d_inv[np.isinf(d_inv)] = 0.
         d_mat = sp.diags(d_inv)
 
@@ -133,9 +123,3 @@ class SEGCN(BaseModel):
         graph = torch.sparse.FloatTensor(idx_tsr, val_tsr, torch.Size(coo_mat.shape))
 
         return graph.coalesce().to(self.device)
-
-    def __build_ui_exp_tsr(self, ui_exp_mat):
-        return torch.from_numpy(ui_exp_mat).to(self.device)
-
-    def __build_item_sim_tsr(self, item_sim_tsr):
-        return torch.from_numpy(item_sim_tsr).to(self.device)

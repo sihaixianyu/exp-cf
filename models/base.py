@@ -16,10 +16,10 @@ class BaseModel(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def forward(self, batch_data):
-        raise NotImplementedError('A model must implement forward() function!')
+        raise NotImplementedError('A models must implement forward() function!')
 
     def predict(self, batch_users, batch_items):
-        raise NotImplementedError('A model must implement predict() function!')
+        raise NotImplementedError('A models must implement predict() function!')
 
     def get_model_suffix(self, model_dir: str):
-        raise NotImplementedError('A model must implement get_model_suffix() function!')
+        raise NotImplementedError('A models must implement get_model_suffix() function!')

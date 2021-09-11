@@ -5,19 +5,18 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from dataset import Dataset
-from model import BaseModel
+from models import BaseModel
 
 
-class EMF(BaseModel):
+class MF(BaseModel):
     def __init__(self, dataset: Dataset, config: dict):
-        super(EMF, self).__init__(dataset)
+        super(MF, self).__init__(dataset)
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
+        self.weight_decay = config['weight_decay']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
-
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
 
         self.to(self.device)
 
@@ -37,10 +36,13 @@ class EMF(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
-        loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
+        loss = torch.mean(F.softplus(neg_ratings - pos_ratings))
 
-        return loss
+        reg_term = (1 / 2) * (user_embs.norm(2).pow(2) +
+                              pos_item_embs.norm(2).pow(2) +
+                              neg_item_embs.norm(2).pow(2)) / float(len(users))
+
+        return loss + self.weight_decay * reg_term
 
     def predict(self, batch_users, batch_items):
         batch_users = torch.LongTensor(batch_users).to(self.device)
@@ -55,9 +57,5 @@ class EMF(BaseModel):
         return pred_ratings
 
     def get_model_suffix(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_n{}.pth'.format(self.model_name,
-                                                             self.latent_dim,
-                                                             self.neighbor_num))
-
-    def __build_ui_exp_tsr(self, ui_exp_mat):
-        return torch.from_numpy(ui_exp_mat).to(self.device)
+        return path.join(model_dir, '{}_ld{}.pth'.format(self.model_name,
+                                                         self.latent_dim))

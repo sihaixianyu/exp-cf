@@ -2,8 +2,8 @@ import argparse
 
 parser = argparse.ArgumentParser()
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='egcn', type=str,
-                    help='chosea a target model')
+parser.add_argument('-m', '--model_name', default='mf', type=str,
+                    help='chosea a target models')
 parser.add_argument('-ld', '--latent_dim', default=64, type=int,
                     help='the dimision of latent space for user and item')
 parser.add_argument('-ln', '--layer_num', default=3, type=int,
@@ -22,8 +22,8 @@ parser.add_argument('-s', '--sample_method', default='random', type=str,
 parser.add_argument('-n', '--neighbor_num', default=25, type=int,
                     help='the neighbor number for building explainable matrix')
 # Train relevant args
-parser.add_argument('-r', '--retrain', default=False, type=bool,
-                    help='retrain the model from scratch')
+parser.add_argument('-r', '--retrain', action='store_true', default=False,
+                    help='retrain the models from scratch')
 parser.add_argument('-e', '--epoch_num', default=500, type=int,
                     help='the total number of training epoch')
 parser.add_argument('-b', '--batch_size', default=512, type=int,

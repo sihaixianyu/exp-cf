@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from model import BaseModel
+from models import BaseModel
 from util import timer
 
 

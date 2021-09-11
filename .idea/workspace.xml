@@ -5,24 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f54de613-87dd-4958-9a26-2f4855343d03" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k_mf_ld64_n25.pth" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/ml-100k/ui_exp_mat_25.npy" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/model/segcn.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/parser.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k/egcn_ld64_ln3_n25.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k/segcn_ld64_ln3_n25_a0.2.pth" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_emf_explainable.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_lgcn_explainable.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_mf_explainable.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_mf_random.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k_mf_ld64_n25.pth" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/egcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/egcn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/emf.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/emf.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/lgcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/lgcn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/mf.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/mf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/egcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/egcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/emf.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/emf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/lgcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/lgcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/mf.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/mf.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/segcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/segcn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/parser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/tester.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,15 +58,16 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/data/ml-100k" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/ckpt/ml-100k" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="preferences.updates" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ckpt/ml-100k" />
       <recent name="$PROJECT_DIR$/data/ml-100k" />
       <recent name="$PROJECT_DIR$/data" />
     </key>
@@ -121,7 +119,9 @@
       <workItem from="1631098995111" duration="6607000" />
       <workItem from="1631109394454" duration="113000" />
       <workItem from="1631150955272" duration="10337000" />
-      <workItem from="1631238989026" duration="7410000" />
+      <workItem from="1631238989026" duration="9641000" />
+      <workItem from="1631265375065" duration="1259000" />
+      <workItem from="1631269290279" duration="5697000" />
     </task>
     <servers />
   </component>
@@ -131,26 +131,10 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>35</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>58</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/egcn$egcn.coverage" NAME="egcn Coverage Results" MODIFIED="1631246752412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/egcn$egcn.coverage" NAME="egcn Coverage Results" MODIFIED="1631266024723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/egcn$parser.coverage" NAME="parser Coverage Results" MODIFIED="1631244226807" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/egcn$util.coverage" NAME="util Coverage Results" MODIFIED="1630911435480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/egcn$main.coverage" NAME="egcn Coverage Results" MODIFIED="1631247362811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/egcn$main.coverage" NAME="egcn Coverage Results" MODIFIED="1631265267047" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

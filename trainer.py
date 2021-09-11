@@ -4,7 +4,7 @@ import numpy as np
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-from model import BaseModel
+from models import BaseModel
 from util import timer
 
 

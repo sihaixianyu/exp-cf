@@ -34,8 +34,6 @@ class Dataset:
 
         if self.sample_method == 'random':
             self.sample = self.__random_sample
-        elif self.sample_method == 'similarity':
-            self.sample = self.__similarity_sample
         elif self.sample_method == 'explainable':
             self.sample = self.__explainable_sample
         else:
@@ -119,17 +117,6 @@ class Dataset:
             neg_item = random.randint(0, self.item_num)
             while neg_item in pos_items:
                 neg_item = random.randint(0, self.item_num)
-
-            train_list.append([user, pos_item, neg_item])
-
-        return np.array(train_list)
-
-    def __similarity_sample(self):
-        train_list = []
-        for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
-            neg_items = np.where(self.ui_mat[user] == 0)[0]
-            neg_item_sims = self.item_sim_mat[pos_item, neg_items]
-            neg_item = neg_items[np.argmin(neg_item_sims)]
 
             train_list.append([user, pos_item, neg_item])
 

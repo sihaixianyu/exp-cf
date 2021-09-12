@@ -1,7 +1,6 @@
 import os
 import time
 from collections import Iterable
-from copy import copy
 from pprint import pprint
 
 
@@ -22,7 +21,8 @@ def timer(func):
 def check_file(*files: str):
     for file in files:
         if not os.path.exists(file):
-            raise FileNotFoundError('{} not exist, please confirm the presence of the target!'.format(file))
+            raise FileNotFoundError(
+                '{} not exist, please confirm the presence of the target!'.format(file))
 
 
 def color_print(content: str):

@@ -59,9 +59,10 @@ class SEGCN(BaseModel):
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
         item_sims = self.item_sim_tsr[pos_items, neg_items]
-        exp_term = (1 / 2) * ((pos_item_embs - neg_item_embs).norm(2).pow(2) * item_sims).sum() / float(len(users))
+        emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
+        exp_term = (1 / 2) * (emb_diffs * item_sims).norm().pow(2) / float(len(users))
 
-        return loss + self.weight_decay * (reg_term + self.alpha * exp_term)
+        return loss + self.weight_decay * reg_term + self.alpha * exp_term
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -134,8 +135,8 @@ class SEGCN(BaseModel):
 
         return graph.coalesce().to(self.device)
 
-    def __build_ui_exp_tsr(self, ui_exp_mat):
-        return torch.from_numpy(ui_exp_mat).to(self.device)
-
     def __build_item_sim_tsr(self, item_sim_tsr):
         return torch.from_numpy(item_sim_tsr).to(self.device)
+
+    def __build_ui_exp_tsr(self, ui_exp_mat):
+        return torch.from_numpy(ui_exp_mat).to(self.device)

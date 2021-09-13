@@ -27,7 +27,7 @@ if __name__ == '__main__':
     data_dir = path.join(root_dir, 'data/', config['data_name'])
     dataset = Dataset(data_dir, config)
 
-    # Warning: we must set tester's batch_size=100 due to our leave-on-out evaluation strategy
+    # Warning: we must set test loader batch_size=100 due to our leave-on-out evaluation strategy
     train_loader = DataLoader(dataset.get_train_data(), batch_size=config['batch_size'], shuffle=True)
     test_loader = DataLoader(dataset.get_test_data(), batch_size=100, shuffle=False)
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             hr, ndcg, test_time = tester.test()
             print('Result: hr=%.4f, ndcg=%.4f, test_time=%.4f' % (hr, ndcg, test_time))
 
-            if best_epoch['hr'] < hr or (best_epoch['hr'] == hr and best_epoch['ndcg'] < ndcg):
+            if best_epoch['hr'] <= hr:
                 best_epoch['epoch'] = epoch
                 best_epoch['hr'] = hr
                 best_epoch['ndcg'] = ndcg

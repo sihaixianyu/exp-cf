@@ -76,7 +76,7 @@ class LGCN(BaseModel):
 
         return embs
 
-    def get_model_suffix(self, model_dir: str):
+    def get_model_path(self, model_dir: str):
         return path.join(model_dir, '{}_ld{}_ln{}.pth'.format(self.model_name,
                                                               self.latent_dim,
                                                               self.layer_num))

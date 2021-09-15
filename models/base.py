@@ -21,5 +21,5 @@ class BaseModel(nn.Module):
     def predict(self, batch_users, batch_items):
         raise NotImplementedError('A models must implement predict() function!')
 
-    def get_model_suffix(self, model_dir: str):
+    def get_model_path(self, model_dir: str):
         raise NotImplementedError('A models must implement get_model_suffix() function!')

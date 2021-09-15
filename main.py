@@ -43,7 +43,7 @@ if __name__ == '__main__':
     if not path.exists(model_dir):
         os.mkdir(model_dir)
 
-    model_path = model.get_model_suffix(model_dir)
+    model_path = model.get_model_path(model_dir)
     if not path.exists(model_path) or config['retrain']:
         print('Training models {} from scratch...'.format(model_name))
         torch.save(model.state_dict(), model_path)

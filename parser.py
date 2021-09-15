@@ -11,7 +11,11 @@ parser.add_argument('-ln', '--layer_num', default=3, type=int,
 parser.add_argument('-wd', '--weight_decay', default=1e-4, type=float,
                     help='the weight decay of regular term')
 parser.add_argument('-a', '--alpha', default=1e-2, type=float,
-                    help='the hyperparam for specific regular term weight')
+                    help='the hyperparam for special regular term weight')
+parser.add_argument('-b', '--beta', default=1e-4, type=float,
+                    help='the hyperparam for special regular term weight')
+parser.add_argument('-g', '--gamma', default=1e-5, type=float,
+                    help='the hyperparam for special regular term weight')
 # Dataset relevant args
 parser.add_argument('-d', '--data_name', default='ml-100k', type=str,
                     help='chose a target dataset')
@@ -24,7 +28,7 @@ parser.add_argument('-lr', '--learning_rate', default=1e-3, type=float,
                     help='the learning rate of trining process')
 parser.add_argument('-e', '--epoch_num', default=500, type=int,
                     help='the total number of training epoch')
-parser.add_argument('-b', '--batch_size', default=512, type=int,
+parser.add_argument('-bs', '--batch_size', default=512, type=int,
                     help='the number of training data in each batch')
 parser.add_argument('-r', '--retrain', action='store_true', default=False,
                     help='retrain the models from scratch')

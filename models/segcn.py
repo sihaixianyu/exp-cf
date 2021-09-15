@@ -60,9 +60,9 @@ class SEGCN(BaseModel):
 
         item_sims = self.item_sim_tsr[pos_items, neg_items]
         emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
-        exp_term = (1 / 2) * (emb_diffs * item_sims).norm().pow(2) / float(len(users))
+        exp_reg_term = (1 / 2) * (emb_diffs * item_sims).norm().pow(2) / float(len(users))
 
-        return loss + self.weight_decay * reg_term + self.alpha * exp_term
+        return loss + self.weight_decay * reg_term + self.alpha * exp_reg_term
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -85,7 +85,7 @@ class SEGCN(BaseModel):
 
         return embs
 
-    def get_model_suffix(self, model_dir: str):
+    def get_model_path(self, model_dir: str):
         return path.join(model_dir, '{}_ld{}_ln{}_n{}_a{}.pth'.format(self.model_name,
                                                                       self.latent_dim,
                                                                       self.layer_num,

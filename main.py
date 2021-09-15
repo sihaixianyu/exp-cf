@@ -14,8 +14,8 @@ from parser import parser
 from tester import Tester
 from trainer import Trainer
 
-# root_dir = 'drive/MyDrive/egcn/'
-root_dir = '/Users/sihaixianyu/Projects/PythonProjects/egcn/'
+# root_dir = 'drive/MyDrive/rec-cf/'
+root_dir = '//'
 
 if __name__ == '__main__':
     np.random.seed(2021)

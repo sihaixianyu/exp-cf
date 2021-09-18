@@ -57,5 +57,6 @@ class MF(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}.pth'.format(self.model_name,
-                                                         self.latent_dim))
+        return path.join(model_dir, '{}_ld{}_wd{}.pth'.format(self.model_name,
+                                                              self.latent_dim,
+                                                              self.weight_decay))

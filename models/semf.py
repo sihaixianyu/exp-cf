@@ -14,12 +14,13 @@ class SEMF(BaseModel):
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
         self.weight_decay = config['weight_decay']
+        self.theta = config['theta']
         self.alpha = config['alpha']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
         self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
 
         self.to(self.device)
@@ -47,11 +48,14 @@ class SEMF(BaseModel):
                               pos_item_embs.norm(2).pow(2) +
                               neg_item_embs.norm(2).pow(2)) / float(len(users))
 
-        item_sims = self.item_sim_tsr[pos_items, neg_items]
-        emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
-        exp_reg_term = (1 / 2) * (emb_diffs * item_sims).norm().pow(2) / float(len(users))
+        W = self.item_sim_tsr[pos_items, neg_items]
+        W[W >= self.theta] = 1
+        W[W < self.theta] = -1
 
-        return loss + self.weight_decay * reg_term + self.alpha * exp_reg_term
+        emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
+        sim_reg_term = (1 / 2) * (W * emb_diffs).norm().pow(2) / float(len(users))
+
+        return loss + self.weight_decay * reg_term + self.alpha * sim_reg_term
 
     def predict(self, batch_users, batch_items):
         batch_users = torch.LongTensor(batch_users).to(self.device)
@@ -66,10 +70,11 @@ class SEMF(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_n{}_a{}.pth'.format(self.model_name,
-                                                                 self.latent_dim,
-                                                                 self.neighbor_num,
-                                                                 self.alpha))
+        return path.join(model_dir, '{}_ld{}_wd{}_t{}_a{}.pth'.format(self.model_name,
+                                                                      self.latent_dim,
+                                                                      self.weight_decay,
+                                                                      self.theta,
+                                                                      self.alpha))
 
     def __build_item_sim_tsr(self, item_sim_tsr):
         return torch.from_numpy(item_sim_tsr).to(self.device)

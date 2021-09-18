@@ -18,12 +18,14 @@ class CEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
+        self.beta = config['beta']
+        self.gamma = config['gamma']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.graph = self.__build_graph(dataset.ui_csr_mat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
+        self.graph = self.__build_graph(dataset.train_csrmat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
         self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
 
         self.to(self.device)
@@ -59,10 +61,12 @@ class CEGCN(BaseModel):
         pos_emb_diffs = torch.sum((user_embs - pos_item_embs), dim=1)
         neg_emb_diffs = torch.sum((user_embs - neg_item_embs), dim=1)
 
-        pos_exp_reg = (1 / 2) * (pos_emb_diffs * self.ui_exp_tsr[users, pos_items])
-        neg_exp_reg = (1 / 2) * (neg_emb_diffs * self.ui_exp_tsr[users, neg_items])
+        pos_exp_reg = (1 / 2) * (
+                pos_emb_diffs * self.ui_exp_tsr[users, pos_items]).norm().pow(2) / float(len(users))
+        neg_exp_reg = (1 / 2) * (
+                neg_emb_diffs * (1 - self.ui_exp_tsr[users, neg_items])).norm().pow(2) / float(len(users))
 
-        return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg + self.gamma * neg_exp_reg
+        return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg - self.gamma * neg_exp_reg
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -77,12 +81,12 @@ class CEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_n{}_b{}_g{}.pth'.format(self.model_name,
-                                                                          self.latent_dim,
-                                                                          self.layer_num,
-                                                                          self.neighbor_num,
-                                                                          self.beta,
-                                                                          self.gamma))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_b{}_g{}.pth'.format(self.model_name,
+                                                                           self.latent_dim,
+                                                                           self.layer_num,
+                                                                           self.weight_decay,
+                                                                           self.beta,
+                                                                           self.gamma))
 
     def __compute(self):
         embed_user_weight = self.embed_user.weight

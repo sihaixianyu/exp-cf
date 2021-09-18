@@ -22,7 +22,7 @@ class LGCN(BaseModel):
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.graph = self.__build_graph(dataset.ui_csr_mat)
+        self.graph = self.__build_graph(dataset.train_csrmat)
 
         self.to(self.device)
 
@@ -67,19 +67,11 @@ class LGCN(BaseModel):
 
         return pred_ratings
 
-    def get_embs(self, users, items):
-        with torch.no_grad():
-            all_user_embs, all_item_embs = self.__compute()
-            user_embs = all_user_embs[users]
-            item_embs = all_item_embs[items]
-            embs = user_embs * item_embs
-
-        return embs
-
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}.pth'.format(self.model_name,
-                                                              self.latent_dim,
-                                                              self.layer_num))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}.pth'.format(self.model_name,
+                                                                   self.latent_dim,
+                                                                   self.layer_num,
+                                                                   self.weight_decay))
 
     def __compute(self) -> (FloatTensor, FloatTensor):
         embed_user_weight = self.embed_user.weight

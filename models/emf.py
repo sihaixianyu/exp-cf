@@ -18,7 +18,7 @@ class EMF(BaseModel):
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
 
         self.to(self.device)
 
@@ -60,9 +60,9 @@ class EMF(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_n{}.pth'.format(self.model_name,
-                                                             self.latent_dim,
-                                                             self.neighbor_num))
+        return path.join(model_dir, '{}_ld{}_wd{}.pth'.format(self.model_name,
+                                                              self.latent_dim,
+                                                              self.weight_decay))
 
     def __build_ui_exp_tsr(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)

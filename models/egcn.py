@@ -22,8 +22,8 @@ class EGCN(BaseModel):
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
-        self.graph = self.__build_graph(dataset.ui_csr_mat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.ui_exp_mat)
+        self.graph = self.__build_graph(dataset.train_csrmat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
         self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
 
         self.to(self.device)
@@ -70,20 +70,11 @@ class EGCN(BaseModel):
 
         return pred_ratings
 
-    def get_embs(self, users: FloatTensor, items: FloatTensor):
-        with torch.no_grad():
-            all_user_embs, all_item_embs = self.__compute()
-            user_embs = all_user_embs[users]
-            item_embs = all_item_embs[items]
-            embs = user_embs * item_embs
-
-        return embs
-
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_n{}.pth'.format(self.model_name,
-                                                                  self.latent_dim,
-                                                                  self.layer_num,
-                                                                  self.neighbor_num))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}.pth'.format(self.model_name,
+                                                                   self.latent_dim,
+                                                                   self.layer_num,
+                                                                   self.weight_decay))
 
     def __compute(self):
         embed_user_weight = self.embed_user.weight

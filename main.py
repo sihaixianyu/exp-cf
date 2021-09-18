@@ -11,11 +11,12 @@ import models
 import util
 from dataset import Dataset
 from parser import parser
+from recorder import Recorder
 from tester import Tester
 from trainer import Trainer
 
 # root_dir = 'drive/MyDrive/rec-cf/'
-root_dir = '//'
+root_dir = '/Users/sihaixianyu/Projects/PythonProjects/rec-cf'
 
 if __name__ == '__main__':
     np.random.seed(2021)
@@ -37,7 +38,10 @@ if __name__ == '__main__':
     optimizer = Adam(model.parameters(), lr=config['learning_rate'])
 
     trainer = Trainer(train_loader, model, optimizer)
-    tester = Tester(test_loader, model, config['topk'])
+    tester = Tester(test_loader, model, dataset.full_exp_mat, config['topk'])
+
+    # Record results of each epoch
+    recorder = Recorder(cmp_key='hr')
 
     model_dir = path.join(root_dir, 'ckpt', config['data_name'])
     if not path.exists(model_dir):
@@ -57,9 +61,10 @@ if __name__ == '__main__':
             torch.save(model.state_dict(), model_path)
 
     util.color_print('[TEST]')
-    hr, ndcg, test_time = tester.test()
-    best_epoch = {'epoch': 0, 'hr': hr, 'ndcg': ndcg}
-    print('Result: hr=%.4f, ndcg=%.4f, test_time=%.4f' % (hr, ndcg, test_time))
+    hr, ndcg, mep, wmep, test_time = tester.test()
+
+    recorder.record(0, hr, ndcg, mep, wmep)
+    print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
 
     for epoch in range(1, config['epoch_num'] + 1):
         loss, train_time = trainer.train()
@@ -67,16 +72,11 @@ if __name__ == '__main__':
 
         if epoch % config['interval'] == 0:
             util.color_print('[TEST]')
-            hr, ndcg, test_time = tester.test()
-            print('Result: hr=%.4f, ndcg=%.4f, test_time=%.4f' % (hr, ndcg, test_time))
+            hr, ndcg, mep, wmep, test_time = tester.test()
 
-            if best_epoch['hr'] <= hr:
-                best_epoch['epoch'] = epoch
-                best_epoch['hr'] = hr
-                best_epoch['ndcg'] = ndcg
+            is_update = recorder.record(epoch, hr, ndcg, mep, wmep)
+            print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
+            if is_update:
                 torch.save(model.state_dict(), model_path)
 
-    util.sep_print('%s Best: epoch=%.4f, hr=%.4f, ndcg=%.4f' % (model_name.upper(),
-                                                                best_epoch['epoch'],
-                                                                best_epoch['hr'],
-                                                                best_epoch['ndcg']))
+    recorder.print_best(model_name.upper(), keys=['hr', 'ndcg', 'mep', 'wmep'])

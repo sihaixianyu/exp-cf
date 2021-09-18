@@ -19,18 +19,22 @@ class Dataset:
         self.neighbor_num = config['neighbor_num']
         self.sample_method = config['sample_method']
 
-        self.train_arr, self.test_arr, self.ui_csr_mat, self.neg_dict = self.__load_data()
+        self.train_arr, self.test_arr, self.neg_dict, self.train_csrmat, self.full_csrmat = self.__load_data()
 
-        self.ui_mat = self.ui_csr_mat.toarray()
-        self.iu_mat = self.ui_mat.T
+        self.train_mat = self.train_csrmat.toarray()
+        self.full_mat = self.full_csrmat.toarray()
 
-        self.user_num = self.ui_mat.shape[0]
-        self.item_num = self.iu_mat.shape[0]
+        self.user_num = self.train_mat.shape[0]
+        self.item_num = self.train_mat.shape[1]
 
         self.user_pos_items = self.__build_user_pos_items()
-        self.user_sim_mat = self.__build_user_sim_mat()
+        # self.item_pos_users = self.__build_item_pos_users()
+
+        # self.user_sim_mat = self.__build_user_sim_mat()
         self.item_sim_mat = self.__build_item_sim_mat()
-        self.ui_exp_mat = self.__build_ui_exp_mat()
+
+        self.train_exp_mat = self.__build_train_exp_mat()
+        self.full_exp_mat = self.__build_full_exp_mat()
 
         if self.sample_method == 'random':
             self.sample = self.__random_sample
@@ -57,57 +61,83 @@ class Dataset:
         train_path = path.join(self.data_dir, 'train.csv')
         test_path = path.join(self.data_dir, 'test.csv')
         neg_path = path.join(self.data_dir, 'neg_dict.pkl')
-        sp_ui_path = path.join(self.data_dir, 'ui_csr_mat.npz')
+        train_csrmat_path = path.join(self.data_dir, 'train_csrmat.npz')
+        full_csrmat_path = path.join(self.data_dir, 'full_csrmat.npz')
 
-        util.check_file(train_path, test_path, sp_ui_path, neg_path)
+        util.check_file(train_path, test_path, neg_path, train_csrmat_path, full_csrmat_path)
 
         train_arr = pd.read_csv(train_path).to_numpy()
         test_arr = pd.read_csv(test_path).to_numpy()
 
-        ui_csr_mat = sp.load_npz(sp_ui_path)
+        train_csrmat = sp.load_npz(train_csrmat_path)
+        full_csrmat = sp.load_npz(full_csrmat_path)
 
         with open(neg_path, 'rb') as f:
             neg_dict = pickle.load(f)
 
-        return train_arr, test_arr, ui_csr_mat, neg_dict
+        return train_arr, test_arr, neg_dict, train_csrmat, full_csrmat
 
     def __build_user_pos_items(self):
         users = list(range(self.user_num))
         user_pos_items = []
         for user in users:
-            user_pos_items.append(self.ui_csr_mat[user].nonzero()[1])
+            user_pos_items.append(self.train_csrmat[user].nonzero()[1])
 
         return user_pos_items
 
+    def __build_item_pos_users(self):
+        items = list(range(self.item_num))
+        item_pos_users = []
+        for item in items:
+            item_pos_users.append(self.train_csrmat.T[item].nonzero()[1])
+
+        return item_pos_users
+
     def __build_user_sim_mat(self):
-        user_sim_mat = cosine_similarity(self.ui_mat)
+        user_sim_mat = cosine_similarity(self.train_mat)
         np.fill_diagonal(user_sim_mat, 0)
         return user_sim_mat
 
     def __build_item_sim_mat(self):
-        item_sim_mat = cosine_similarity(self.iu_mat)
+        item_sim_mat = cosine_similarity(self.train_mat.T)
         np.fill_diagonal(item_sim_mat, 0)
         return item_sim_mat
 
-    def __build_ui_exp_mat(self):
-        exp_mat_path = path.join(self.data_dir, 'ui_exp_mat_{}.npy'.format(self.neighbor_num))
-        if path.exists(exp_mat_path):
-            print('Loading explainable matrix...')
-            ui_exp_mat = np.load(exp_mat_path)
+    def __build_train_exp_mat(self):
+        train_exp_path = path.join(self.data_dir, 'train_exp_mat_{}.npy'.format(self.neighbor_num))
+        if path.exists(train_exp_path):
+            print('Loading train explainable matrix...')
+            train_exp_mat = np.load(train_exp_path)
         else:
             neighbors = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
                          for row in self.item_sim_mat]
-
-            print('Building explainable matrix...')
-            ui_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
+            print('Building train explainable matrix...')
+            train_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
             for user in tqdm(range(self.user_num), file=sys.stdout):
                 for item in range(self.item_num):
-                    ui_exp_mat[user][item] = sum(
-                        [self.ui_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
+                    train_exp_mat[user][item] = sum(
+                        [self.train_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
+            np.save(train_exp_path, train_exp_mat)
 
-            np.save(exp_mat_path, ui_exp_mat)
+        return train_exp_mat
 
-        return ui_exp_mat
+    def __build_full_exp_mat(self):
+        full_exp_path = path.join(self.data_dir, 'full_exp_mat_{}.npy'.format(self.neighbor_num))
+        if path.exists(full_exp_path):
+            print('Loading full explainable matrix...')
+            full_exp_mat = np.load(full_exp_path)
+        else:
+            neighbors = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
+                         for row in self.item_sim_mat]
+            print('Building full explainable matrix...')
+            full_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
+            for user in tqdm(range(self.user_num), file=sys.stdout):
+                for item in range(self.item_num):
+                    full_exp_mat[user][item] = sum(
+                        [self.train_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
+            np.save(full_exp_path, full_exp_mat)
+
+        return full_exp_mat
 
     def __random_sample(self):
         train_list = []
@@ -127,7 +157,7 @@ class Dataset:
         for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
             pos_items = self.user_pos_items[user]
 
-            inv_exp_arr = np.reciprocal(self.ui_exp_mat[user])
+            inv_exp_arr = np.reciprocal(self.train_exp_mat[user])
             inv_exp_arr[np.isinf(inv_exp_arr)] = 0.
             prob_arr = inv_exp_arr / sum(inv_exp_arr)
             neg_item = random.choice(np.arange(self.item_num), p=prob_arr)

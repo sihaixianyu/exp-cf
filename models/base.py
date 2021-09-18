@@ -12,6 +12,7 @@ class BaseModel(nn.Module):
         self.neighbor_num = dataset.neighbor_num
         self.user_num = dataset.user_num
         self.item_num = dataset.item_num
+        self.ui_exp_mat = dataset.train_exp_mat
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

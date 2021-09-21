@@ -8,7 +8,6 @@ class BaseModel(nn.Module):
     def __init__(self, dataset: Dataset):
         super(BaseModel, self).__init__()
         self.data_name = dataset.data_name
-        self.sample_method = dataset.sample_method
         self.neighbor_num = dataset.neighbor_num
         self.user_num = dataset.user_num
         self.item_num = dataset.item_num

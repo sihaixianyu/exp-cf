@@ -17,7 +17,7 @@ class Dataset:
         self.data_dir = data_dir
         self.data_name = config['data_name']
         self.neighbor_num = config['neighbor_num']
-        self.sample_method = config['sample_method']
+        self.similarity = config['similarity']
 
         self.train_arr, self.test_arr, self.neg_dict, self.train_csrmat, self.full_csrmat = self.__load_data()
 
@@ -36,17 +36,19 @@ class Dataset:
         self.train_exp_mat = self.__build_train_exp_mat()
         self.full_exp_mat = self.__build_full_exp_mat()
 
-        if self.sample_method == 'random':
-            self.sample = self.__random_sample
-        elif self.sample_method == 'explainable':
-            self.sample = self.__explainable_sample
-        else:
-            raise ValueError('No such sample method: %s' % self.sample_method)
-
     def get_train_data(self):
         print('Building train data...')
-        train_arr = self.sample()
-        return train_arr
+        train_list = []
+        for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
+            pos_items = self.user_pos_items[user]
+
+            neg_item = random.randint(0, self.item_num)
+            while neg_item in pos_items:
+                neg_item = random.randint(0, self.item_num)
+
+            train_list.append([user, pos_item, neg_item])
+
+        return np.array(train_list)
 
     def get_test_data(self):
         print('Building test data...')
@@ -55,6 +57,7 @@ class Dataset:
             test_list.append([user, pos_item])
             for i in range(99):
                 test_list.append([user, self.neg_dict[user][i]])
+
         return np.array(test_list)
 
     def __load_data(self):
@@ -138,32 +141,3 @@ class Dataset:
             np.save(full_exp_path, full_exp_mat)
 
         return full_exp_mat
-
-    def __random_sample(self):
-        train_list = []
-        for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
-            pos_items = self.user_pos_items[user]
-
-            neg_item = random.randint(0, self.item_num)
-            while neg_item in pos_items:
-                neg_item = random.randint(0, self.item_num)
-
-            train_list.append([user, pos_item, neg_item])
-
-        return np.array(train_list)
-
-    def __explainable_sample(self):
-        train_list = []
-        for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
-            pos_items = self.user_pos_items[user]
-
-            inv_exp_arr = np.reciprocal(self.train_exp_mat[user])
-            inv_exp_arr[np.isinf(inv_exp_arr)] = 0.
-            prob_arr = inv_exp_arr / sum(inv_exp_arr)
-            neg_item = random.choice(np.arange(self.item_num), p=prob_arr)
-            while neg_item in pos_items:
-                neg_item = random.randint(0, self.item_num)
-
-            train_list.append([user, pos_item, neg_item])
-
-        return np.array(train_list)

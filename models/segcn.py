@@ -61,7 +61,7 @@ class SEGCN(BaseModel):
 
         W = self.item_sim_tsr[pos_items, neg_items]
         W[W >= self.theta] = 1
-        W[W < self.theta] = -1
+        W[W < self.theta] = 0
 
         emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
         sim_reg_term = (1 / 2) * (W * emb_diffs).norm().pow(2) / float(len(users))

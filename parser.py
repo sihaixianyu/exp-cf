@@ -2,7 +2,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='cegcn', type=str,
+parser.add_argument('-m', '--model_name', default='cemf', type=str,
                     help='chosea a target models')
 parser.add_argument('-ld', '--latent_dim', default=64, type=int,
                     help='the dimision of latent space for user and item')
@@ -21,8 +21,8 @@ parser.add_argument('-g', '--gamma', default=1e-4, type=float,
 # Dataset relevant args
 parser.add_argument('-d', '--data_name', default='ml-100k', type=str,
                     help='chose a target dataset')
-parser.add_argument('-s', '--sample_method', default='random', type=str,
-                    help='the sample method for training data')
+parser.add_argument('-s', '--similarity', default='cosine', type=str,
+                    help='the similarity calculation method for training data')
 parser.add_argument('-n', '--neighbor_num', default=25, type=int,
                     help='the neighbor number for building explainable matrix')
 # Train relevant args

@@ -64,9 +64,9 @@ class CEGCN(BaseModel):
         pos_exp_reg = (1 / 2) * (
                 pos_emb_diffs * self.ui_exp_tsr[users, pos_items]).norm().pow(2) / float(len(users))
         neg_exp_reg = (1 / 2) * (
-                neg_emb_diffs * (1 - self.ui_exp_tsr[users, neg_items])).norm().pow(2) / float(len(users))
+                neg_emb_diffs * self.ui_exp_tsr[users, neg_items]).norm().pow(2) / float(len(users))
 
-        return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg - self.gamma * neg_exp_reg
+        return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg + self.gamma * neg_exp_reg
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()

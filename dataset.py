@@ -27,6 +27,15 @@ class Dataset:
         self.user_num = self.train_mat.shape[0]
         self.item_num = self.train_mat.shape[1]
 
+        if self.similarity == 'cosine':
+            self.similarity_func = util.calc_cosine_similarity
+        elif self.similarity == 'pearson':
+            self.similarity_func = util.calc_pearson_similarity
+        elif self.similarity == 'copula':
+            self.similarity_func = util.calc_copula_entroy
+        else:
+            raise ValueError('The target similarity function {} not exist!'.format(self.similarity))
+
         self.user_pos_items = self.__build_user_pos_items()
         # self.item_pos_users = self.__build_item_pos_users()
 
@@ -97,17 +106,31 @@ class Dataset:
         return item_pos_users
 
     def __build_user_sim_mat(self):
-        user_sim_mat = cosine_similarity(self.train_mat)
-        np.fill_diagonal(user_sim_mat, 0)
+        user_sim_path = path.join(self.data_dir, 'user_sim_mat_{}.npy'.format(self.similarity))
+        if path.exists(user_sim_path):
+            print('Loading user similarity matrix...')
+            user_sim_mat = np.load(user_sim_path)
+        else:
+            print('Building user similarity matrix...')
+            user_sim_mat = self.similarity_func(self.train_mat.T)
+            np.save(user_sim_path, user_sim_mat)
+
         return user_sim_mat
 
     def __build_item_sim_mat(self):
-        item_sim_mat = cosine_similarity(self.train_mat.T)
-        np.fill_diagonal(item_sim_mat, 0)
+        item_sim_path = path.join(self.data_dir, 'item_sim_mat_{}.npy'.format(self.similarity))
+        if path.exists(item_sim_path):
+            print('Loading item similarity matrix...')
+            item_sim_mat = np.load(item_sim_path)
+        else:
+            print('Building item similarity matrix...')
+            item_sim_mat = self.similarity_func(self.train_mat.T)
+            np.save(item_sim_path, item_sim_mat)
+
         return item_sim_mat
 
     def __build_train_exp_mat(self):
-        train_exp_path = path.join(self.data_dir, 'train_exp_mat_{}.npy'.format(self.neighbor_num))
+        train_exp_path = path.join(self.data_dir, 'train_exp_mat_{}{}.npy'.format(self.similarity, self.neighbor_num))
         if path.exists(train_exp_path):
             print('Loading train explainable matrix...')
             train_exp_mat = np.load(train_exp_path)
@@ -125,7 +148,7 @@ class Dataset:
         return train_exp_mat
 
     def __build_full_exp_mat(self):
-        full_exp_path = path.join(self.data_dir, 'full_exp_mat_{}.npy'.format(self.neighbor_num))
+        full_exp_path = path.join(self.data_dir, 'full_exp_mat_{}{}.npy'.format(self.similarity, self.neighbor_num))
         if path.exists(full_exp_path):
             print('Loading full explainable matrix...')
             full_exp_mat = np.load(full_exp_path)

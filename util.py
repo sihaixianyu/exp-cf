@@ -1,10 +1,18 @@
 import os
+import sys
 import time
 from collections import Iterable
 from pprint import pprint
 
+import numpy as np
+from scipy.stats import pearsonr
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 # Timer for supervising function
+from tqdm import tqdm
+
+
 def timer(func):
     def calc_time(*args):
         start_time = time.time()
@@ -40,3 +48,25 @@ def sep_print(obj: any, start=True, end=True, desc=None, num=80):
         pprint(obj)
     if end:
         print('-' * num)
+
+
+def calc_cosine_similarity(mat: np.ndarray):
+    sim_mat = cosine_similarity(mat)
+    np.fill_diagonal(sim_mat, 0)
+
+    return sim_mat
+
+
+def calc_pearson_similarity(mat: np.ndarray):
+    sim_mat = np.zeros(shape=(mat.shape[0], mat.shape[0]))
+    for i in tqdm(range(mat.shape[0]), file=sys.stdout):
+        for j in range(i + 1, mat.shape[0]):
+            sim = pearsonr(mat[i], mat[j])[0]
+            sim_mat[i][j] = sim
+    sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
+
+    return sim_mat
+
+
+def calc_copula_entroy(mat: np.ndarray):
+    pass

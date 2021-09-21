@@ -21,7 +21,7 @@ parser.add_argument('-g', '--gamma', default=1e-4, type=float,
 # Dataset relevant args
 parser.add_argument('-d', '--data_name', default='ml-100k', type=str,
                     help='chose a target dataset')
-parser.add_argument('-s', '--similarity', default='cosine', type=str,
+parser.add_argument('-s', '--similarity', default='pearson', type=str,
                     help='the similarity calculation method for training data')
 parser.add_argument('-n', '--neighbor_num', default=25, type=int,
                     help='the neighbor number for building explainable matrix')
@@ -32,7 +32,7 @@ parser.add_argument('-lr', '--learning_rate', default=1e-3, type=float,
                     help='the learning rate of trining process')
 parser.add_argument('-e', '--epoch_num', default=500, type=int,
                     help='the total number of training epoch')
-parser.add_argument('-r', '--retrain', action='store_true', default=False,
+parser.add_argument('-r', '--retrain', action='store_true', default=True,
                     help='retrain the models from scratch')
 # Test relevant args
 parser.add_argument('-k', '--topk', default=10, type=int,

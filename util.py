@@ -8,7 +8,6 @@ import numpy as np
 from scipy.stats import pearsonr
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 # Timer for supervising function
 from tqdm import tqdm
 
@@ -66,7 +65,3 @@ def calc_pearson_similarity(mat: np.ndarray):
     sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
 
     return sim_mat
-
-
-def calc_copula_entroy(mat: np.ndarray):
-    pass

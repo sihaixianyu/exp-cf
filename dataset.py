@@ -31,8 +31,6 @@ class Dataset:
             self.similarity_func = util.calc_cosine_similarity
         elif self.similarity == 'pearson':
             self.similarity_func = util.calc_pearson_similarity
-        elif self.similarity == 'copula':
-            self.similarity_func = util.calc_copula_entroy
         else:
             raise ValueError('The target similarity function {} not exist!'.format(self.similarity))
 

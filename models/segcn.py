@@ -18,7 +18,8 @@ class SEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
-        self.theta = config['theta']
+        self.theta_plus = config['theta_plus']
+        self.theta_minus = config['theta_minus']
         self.alpha = config['alpha']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
@@ -60,8 +61,13 @@ class SEGCN(BaseModel):
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
         W = self.item_sim_tsr[pos_items, neg_items]
-        W[W >= self.theta] = 1
-        W[W < self.theta] = 0
+        similar_mask = W >= self.theta_plus
+        dissimilar_mask = W <= self.theta_minus
+        neutral_mask = ~(similar_mask | dissimilar_mask)
+
+        W[similar_mask] = 1
+        W[dissimilar_mask] = -1
+        W[neutral_mask] = 0
 
         emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
         sim_reg_term = (1 / 2) * (W * emb_diffs).norm().pow(2) / float(len(users))

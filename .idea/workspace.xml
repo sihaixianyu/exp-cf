@@ -5,23 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bccc05ea-f4d8-4625-a3f4-602b3b3dea03" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld256_wd0.001_tp0.1_tm0.001_a0.0001.pth" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rec-cf.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rec-cf.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lastfm-2k/full_csrmat.npz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lastfm-2k/neg_dict.pkl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lastfm-2k/test.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lastfm-2k/train.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/lastfm-2k/train_csrmat.npz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ml-2k/full_csrmat.npz" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-2k/full_csrmat.npz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ml-2k/neg_dict.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-2k/neg_dict.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ml-2k/test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-2k/test.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ml-2k/train.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-2k/train.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/ml-2k/train_csrmat.npz" beforeDir="false" afterPath="$PROJECT_DIR$/data/ml-2k/train_csrmat.npz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/lastfm-2k/mf_ld100.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/lastfm-2k/mf_ld150.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cegcn_ld64_ln3_wd0.0001_b0.0001_g0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cemf_ld64_n20_b0.0001_g1e-05.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cemf_ld64_n25_b0.0001_g0.001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cemf_ld64_n25_b0.0001_g1e-05.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cemf_ld64_n30_b0.0001_g1e-05.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/cemf_ld64_wd0.0001_b0.0001_g0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/mf_ld100.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/mf_ld150.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/mf_ld64.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/segcn_ld64_ln3_wd0.0001_t0.1_a0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld256_wd0.001_a0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld256_wd0.001_t0.05_a0.01.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld256_wd0.001_tp0.1_tm0.001_a0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld64_n25_a0.001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld64_wd0.0001_a0.0001.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ckpt/ml-100k/semf_ld64_wd0.0001_t0.1_a0.0001.pth" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/segcn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/segcn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/semf.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/semf.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/parser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,7 +154,10 @@
       <workItem from="1632121699325" duration="14218000" />
       <workItem from="1632233286337" duration="295000" />
       <workItem from="1632294791612" duration="2643000" />
-      <workItem from="1632307124765" duration="4594000" />
+      <workItem from="1632307124765" duration="5306000" />
+      <workItem from="1632384887950" duration="4614000" />
+      <workItem from="1632395450716" duration="236000" />
+      <workItem from="1632396888925" duration="306000" />
     </task>
     <servers />
   </component>
@@ -173,10 +182,15 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="np.sum(1-self.train_mat[user])" language="Python" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/rec_cf$main__1_.coverage" NAME="learn-python Coverage Results" MODIFIED="1632210707036" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../learn-python" />
     <SUITE FILE_PATH="coverage/rec_cf$main.coverage" NAME="learn-python Coverage Results" MODIFIED="1632227164300" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../learn-python" />
-    <SUITE FILE_PATH="coverage/rec_cf$rec_cf.coverage" NAME="rec-cf Coverage Results" MODIFIED="1632312362404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/rec_cf$rec_cf.coverage" NAME="rec-cf Coverage Results" MODIFIED="1632389414915" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

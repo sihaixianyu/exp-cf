@@ -5,9 +5,8 @@ from os import path
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from sklearn.metrics.pairwise import cosine_similarity
-from tqdm import tqdm
 from numpy import random
+from tqdm import tqdm
 
 import util
 
@@ -56,21 +55,6 @@ class Dataset:
             train_list.append([user, pos_item, neg_item])
 
         return np.array(train_list)
-
-    # def get_train_data(self):
-    #     print('Building train data...')
-    #     train_list = []
-    #     for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
-    #         pos_items = self.user_pos_items[user]
-    #
-    #         prob = (1-self.train_exp_mat[user]) / np.sum(1-self.train_exp_mat[user])
-    #         neg_item = random.choice(np.arange(0, self.item_num), p=prob)
-    #         while neg_item in pos_items:
-    #             neg_item = random.randint(0, self.item_num)
-    #
-    #         train_list.append([user, pos_item, neg_item])
-    #
-    #     return np.array(train_list)
 
     def get_test_data(self):
         print('Building test data...')

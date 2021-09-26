@@ -87,12 +87,13 @@ class SEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_t{}_a{}.pth'.format(self.model_name,
-                                                                           self.latent_dim,
-                                                                           self.layer_num,
-                                                                           self.weight_decay,
-                                                                           self.theta,
-                                                                           self.alpha))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_tp{}_tm{}_a{}.pth'.format(self.model_name,
+                                                                                 self.latent_dim,
+                                                                                 self.layer_num,
+                                                                                 self.weight_decay,
+                                                                                 self.theta_plus,
+                                                                                 self.theta_minus,
+                                                                                 self.alpha))
 
     def __compute(self) -> (FloatTensor, FloatTensor):
         embed_user_weight = self.embed_user.weight

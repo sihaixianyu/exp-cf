@@ -16,7 +16,7 @@ class Trainer:
         self.optimizer = optimizer
 
     @timer
-    def train(self) -> (float, float):
+    def train(self) -> Tuple[float, float]:
         self.model.train()
 
         loss_list = []

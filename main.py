@@ -1,6 +1,7 @@
 import os
 import warnings
 from os import path
+from parser import parser
 
 import numpy as np
 import torch
@@ -10,13 +11,12 @@ from torch.utils.data import DataLoader
 import models
 import util
 from dataset import Dataset
-from parser import parser
 from recorder import Recorder
 from tester import Tester
 from trainer import Trainer
 
+root_dir = '.'
 # root_dir = 'drive/MyDrive/rec-cf/'
-root_dir = '/Users/sihaixianyu/Projects/PythonProjects/rec-cf'
 
 if __name__ == '__main__':
     np.random.seed(2021)
@@ -24,6 +24,8 @@ if __name__ == '__main__':
 
     config = vars(parser.parse_args())
     util.sep_print(config, desc='Config')
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = config['cuda_num']
 
     data_dir = path.join(root_dir, 'data/', config['data_name'])
     dataset = Dataset(data_dir, config)
@@ -64,18 +66,21 @@ if __name__ == '__main__':
     hr, ndcg, mep, wmep, test_time = tester.test()
 
     recorder.record(0, hr, ndcg, mep, wmep)
-    print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
+    print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' %
+          (hr, ndcg, mep, wmep, test_time))
 
     for epoch in range(1, config['epoch_num'] + 1):
         loss, train_time = trainer.train()
-        print('Epoch[%d/%d], loss=%.4f, train_time=%.4f' % (epoch, config['epoch_num'], loss, train_time))
+        print('Epoch[%d/%d], loss=%.4f, train_time=%.4f' %
+              (epoch, config['epoch_num'], loss, train_time))
 
         if epoch % config['interval'] == 0:
             util.color_print('[TEST]')
             hr, ndcg, mep, wmep, test_time = tester.test()
 
             is_update = recorder.record(epoch, hr, ndcg, mep, wmep)
-            print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
+            print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (
+                hr, ndcg, mep, wmep, test_time))
             if is_update:
                 torch.save(model.state_dict(), model_path)
 

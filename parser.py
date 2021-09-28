@@ -1,21 +1,20 @@
 import argparse
 
 parser = argparse.ArgumentParser()
+# Cuda Relevant args
+parser.add_argument('-c', '--cuda_num', default='2', type=str,
+                    help='chosea a cuda device')
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='mf', type=str,
+parser.add_argument('-m', '--model_name', default='segcn', type=str,
                     help='chosea a target models')
-parser.add_argument('-ld', '--latent_dim', default=256, type=int,
+parser.add_argument('-ld', '--latent_dim', default=128, type=int,
                     help='the dimision of latent space for user and item')
 parser.add_argument('-ln', '--layer_num', default=3, type=int,
                     help='the layer number for gcn based models')
 # Regularization relevant args
 parser.add_argument('-wd', '--weight_decay', default=1e-3, type=float,
                     help='the weight decay of l2 regular')
-parser.add_argument('-tp', '--theta_plus', default=1e-1, type=float,
-                    help='the threshold of item similar regularization term')
-parser.add_argument('-tm', '--theta_minus', default=0, type=float,
-                    help='the threshold of item similar regularization term')
-parser.add_argument('-a', '--alpha', default=1e-3, type=float,
+parser.add_argument('-a', '--alpha', default=1e-5, type=float,
                     help='the coefficient of item similar regularization term')
 parser.add_argument('-b', '--beta', default=1e-3, type=float,
                     help='the coefficient for user and positive item regularization term')
@@ -38,7 +37,7 @@ parser.add_argument('-e', '--epoch_num', default=300, type=int,
 parser.add_argument('-r', '--retrain', action='store_true', default=False,
                     help='retrain the models from scratch')
 # Test relevant args
-parser.add_argument('-t', '--topk', default=10, type=int,
+parser.add_argument('-k', '--topk', default=10, type=int,
                     help='the number of items accepted by user in recommendation')
 parser.add_argument('-i', '--interval', default=10, type=int,
                     help='the test interval of training epoch')

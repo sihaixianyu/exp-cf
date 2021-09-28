@@ -1,4 +1,5 @@
 from os import path
+from typing import Tuple
 
 import numpy as np
 import scipy.sparse as sp
@@ -18,8 +19,6 @@ class SEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
-        self.theta_plus = config['theta_plus']
-        self.theta_minus = config['theta_minus']
         self.alpha = config['alpha']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
@@ -53,24 +52,17 @@ class SEGCN(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
+        exp_coef = self.ui_exp_tsr[users, pos_items] * \
+            (1 - self.ui_exp_tsr[users, neg_items])
         loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
 
         reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
                               pos_item_egos.norm(2).pow(2) +
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
-        W = self.item_sim_tsr[pos_items, neg_items]
-        similar_mask = W >= self.theta_plus
-        dissimilar_mask = W <= self.theta_minus
-        neutral_mask = ~(similar_mask | dissimilar_mask)
-
-        W[similar_mask] = 1
-        W[dissimilar_mask] = -1
-        W[neutral_mask] = 0
-
+        sim = self.item_sim_tsr[pos_items, neg_items]
         emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
-        sim_reg_term = (1 / 2) * (W * emb_diffs).norm().pow(2) / float(len(users))
+        sim_reg_term = (1 / 2) * (sim * emb_diffs).norm().pow(2) / float(len(users))
 
         return loss + self.weight_decay * reg_term + self.alpha * sim_reg_term
 
@@ -87,15 +79,13 @@ class SEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_tp{}_tm{}_a{}.pth'.format(self.model_name,
-                                                                                 self.latent_dim,
-                                                                                 self.layer_num,
-                                                                                 self.weight_decay,
-                                                                                 self.theta_plus,
-                                                                                 self.theta_minus,
-                                                                                 self.alpha))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_a{}.pth'.format(self.model_name,
+                                                                       self.latent_dim,
+                                                                       self.layer_num,
+                                                                       self.weight_decay,
+                                                                       self.alpha))
 
-    def __compute(self) -> (FloatTensor, FloatTensor):
+    def __compute(self) -> Tuple[FloatTensor, FloatTensor]:
         embed_user_weight = self.embed_user.weight
         embed_item_weight = self.embed_item.weight
         emb_weight = torch.cat([embed_user_weight, embed_item_weight])
@@ -107,12 +97,14 @@ class SEGCN(BaseModel):
 
         embs = torch.stack(embs, dim=1)
         light_out = torch.mean(embs, dim=1)
-        all_user_embs, all_item_embs = torch.split(light_out, [self.user_num, self.item_num])
+        all_user_embs, all_item_embs = torch.split(
+            light_out, [self.user_num, self.item_num])
 
         return all_user_embs, all_item_embs
 
     def __build_graph(self, ui_csr_mat):
-        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num), dtype=np.float32)
+        adj_mat = sp.dok_matrix(
+            (self.user_num + self.item_num, self.user_num + self.item_num), dtype=np.float32)
         adj_mat = adj_mat.tolil()
         R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R
@@ -134,7 +126,8 @@ class SEGCN(BaseModel):
         col_tsr = torch.Tensor(coo_mat.col).long()
         idx_tsr = torch.stack([row_tsr, col_tsr])
         val_tsr = torch.FloatTensor(coo_mat.data)
-        graph = torch.sparse.FloatTensor(idx_tsr, val_tsr, torch.Size(coo_mat.shape))
+        graph = torch.sparse.FloatTensor(
+            idx_tsr, val_tsr, torch.Size(coo_mat.shape))
 
         return graph.coalesce().to(self.device)
 

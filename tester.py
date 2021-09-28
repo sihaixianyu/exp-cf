@@ -1,3 +1,4 @@
+from typing import Tuple
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -20,7 +21,7 @@ class Tester:
         pass
 
     @timer
-    def __leave_one_out_test(self) -> (float, float, float):
+    def __leave_one_out_test(self) -> Tuple[float, float, float]:
         self.model.eval()
 
         hr_list, ndcg_list, mep_list, wmep_list = [], [], [], []

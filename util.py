@@ -7,11 +7,10 @@ from pprint import pprint
 import numpy as np
 from scipy.stats import pearsonr
 from sklearn.metrics.pairwise import cosine_similarity
+from tqdm.std import tqdm
+
 
 # Timer for supervising function
-from tqdm import tqdm
-
-
 def timer(func):
     def calc_time(*args):
         start_time = time.time()

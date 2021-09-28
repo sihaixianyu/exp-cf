@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -60,7 +60,7 @@ class Recorder:
                 model_name.upper(), key.upper(), epoch, hr, ndcg, mep, wmep)
             util.sep_print(res_str, end=False) if idx != len(keys) - 1 else util.sep_print(res_str)
 
-    def __find_best(self, key='hr') -> (int, float, float):
+    def __find_best(self, key='hr') -> Tuple[int, float, float]:
         if key == 'hr':
             idx = np.argsort(self.hr_list)[-1]
         elif key == 'ndcg':

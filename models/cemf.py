@@ -3,8 +3,8 @@ from os import path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from dataset import Dataset
+
 from models import BaseModel
 
 
@@ -14,6 +14,7 @@ class CEMF(BaseModel):
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
         self.weight_decay = config['weight_decay']
+        self.theta = config['theta']
         self.beta = config['beta']
         self.gamma = config['gamma']
 
@@ -47,13 +48,17 @@ class CEMF(BaseModel):
                               pos_item_embs.norm(2).pow(2) +
                               neg_item_embs.norm(2).pow(2)) / float(len(users))
 
+        W_pos = self.ui_exp_tsr[users, pos_items]
+        W_neg = self.ui_exp_tsr[users, neg_items]
+
+        W_pos[W_pos < self.theta] = 0
+        W_neg[W_neg < self.theta] = 0
+
         pos_emb_diffs = torch.sum((user_embs - pos_item_embs), dim=1)
         neg_emb_diffs = torch.sum((user_embs - neg_item_embs), dim=1)
 
-        pos_exp_reg = (1 / 2) * (
-                pos_emb_diffs * self.ui_exp_tsr[users, pos_items]).norm().pow(2) / float(len(users))
-        neg_exp_reg = (1 / 2) * (
-                neg_emb_diffs * self.ui_exp_tsr[users, neg_items]).norm().pow(2) / float(len(users))
+        pos_exp_reg = (1 / 2) * (pos_emb_diffs * W_pos).norm().pow(2) / float(len(users))
+        neg_exp_reg = (1 / 2) * (neg_emb_diffs * W_neg).norm().pow(2) / float(len(users))
 
         return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg + self.gamma * neg_exp_reg
 
@@ -70,11 +75,12 @@ class CEMF(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_wd{}_b{}_g{}.pth'.format(self.model_name,
-                                                                      self.latent_dim,
-                                                                      self.weight_decay,
-                                                                      self.beta,
-                                                                      self.gamma))
+        return path.join(model_dir, '{}_ld{}_wd{}_t{}_b{}_g{}.pth'.format(self.model_name,
+                                                                          self.latent_dim,
+                                                                          self.weight_decay,
+                                                                          self.theta,
+                                                                          self.beta,
+                                                                          self.gamma))
 
     def __build_ui_exp_tsr(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)

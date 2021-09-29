@@ -19,6 +19,7 @@ class SEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
+        self.theta = config['theta']
         self.alpha = config['alpha']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
@@ -60,11 +61,13 @@ class SEGCN(BaseModel):
                               pos_item_egos.norm(2).pow(2) +
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
-        sim = self.item_sim_tsr[pos_items, neg_items]
-        emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
-        sim_reg_term = (1 / 2) * (sim * emb_diffs).norm().pow(2) / float(len(users))
+        W = self.item_sim_tsr[pos_items, neg_items]
+        W[W < self.theta] = 0
 
-        return loss + self.weight_decay * reg_term + self.alpha * sim_reg_term
+        emb_diffs = torch.sum((pos_item_embs - neg_item_embs), dim=1)
+        exp_reg_term = (1 / 2) * (W * emb_diffs).norm().pow(2) / float(len(users))
+
+        return loss + self.weight_decay * reg_term + self.alpha * exp_reg_term
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -79,11 +82,12 @@ class SEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_a{}.pth'.format(self.model_name,
-                                                                       self.latent_dim,
-                                                                       self.layer_num,
-                                                                       self.weight_decay,
-                                                                       self.alpha))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_t{}_a{}.pth'.format(self.model_name,
+                                                                           self.latent_dim,
+                                                                           self.layer_num,
+                                                                           self.weight_decay,
+                                                                           self.theta,
+                                                                           self.alpha))
 
     def __compute(self) -> Tuple[FloatTensor, FloatTensor]:
         embed_user_weight = self.embed_user.weight

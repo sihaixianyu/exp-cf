@@ -18,6 +18,7 @@ class CEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
+        self.theta = config['theta']
         self.beta = config['beta']
         self.gamma = config['gamma']
 
@@ -58,13 +59,17 @@ class CEGCN(BaseModel):
                               pos_item_egos.norm(2).pow(2) +
                               neg_item_egos.norm(2).pow(2)) / float(len(users))
 
+        W_pos = self.ui_exp_tsr[users, pos_items]
+        W_neg = self.ui_exp_tsr[users, neg_items]
+
+        W_pos[W_pos < self.theta] = 0
+        W_neg[W_neg < self.theta] = 0
+
         pos_emb_diffs = torch.sum((user_embs - pos_item_embs), dim=1)
         neg_emb_diffs = torch.sum((user_embs - neg_item_embs), dim=1)
 
-        pos_exp_reg = (1 / 2) * (
-                pos_emb_diffs * self.ui_exp_tsr[users, pos_items]).norm().pow(2) / float(len(users))
-        neg_exp_reg = (1 / 2) * (
-                neg_emb_diffs * self.ui_exp_tsr[users, neg_items]).norm().pow(2) / float(len(users))
+        pos_exp_reg = (1 / 2) * (pos_emb_diffs * W_pos).norm().pow(2) / float(len(users))
+        neg_exp_reg = (1 / 2) * (neg_emb_diffs * W_neg).norm().pow(2) / float(len(users))
 
         return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg + self.gamma * neg_exp_reg
 
@@ -81,12 +86,13 @@ class CEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_b{}_g{}.pth'.format(self.model_name,
-                                                                           self.latent_dim,
-                                                                           self.layer_num,
-                                                                           self.weight_decay,
-                                                                           self.beta,
-                                                                           self.gamma))
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_t{}_b{}_g{}.pth'.format(self.model_name,
+                                                                               self.latent_dim,
+                                                                               self.layer_num,
+                                                                               self.weight_decay,
+                                                                               self.theta,
+                                                                               self.beta,
+                                                                               self.gamma))
 
     def __compute(self):
         embed_user_weight = self.embed_user.weight
@@ -105,7 +111,8 @@ class CEGCN(BaseModel):
         return all_user_embs, all_item_embs
 
     def __build_graph(self, ui_csr_mat):
-        adj_mat = sp.dok_matrix((self.user_num + self.item_num, self.user_num + self.item_num), dtype=np.float32)
+        adj_mat = sp.dok_matrix((self.user_num + self.item_num,
+                                self.user_num + self.item_num), dtype=np.float32)
         adj_mat = adj_mat.tolil()
         R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R

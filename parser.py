@@ -3,23 +3,25 @@ import argparse
 parser = argparse.ArgumentParser()
 # Cuda Relevant args
 parser.add_argument('-c', '--cuda_num', default='2', type=str,
-                    help='chosea a cuda device')
+                    help='chose a cuda device')
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='segcn', type=str,
-                    help='chosea a target models')
+parser.add_argument('-m', '--model_name', default='cegcn', type=str,
+                    help='chose a target models')
 parser.add_argument('-ld', '--latent_dim', default=128, type=int,
-                    help='the dimision of latent space for user and item')
+                    help='the dimesion of latent space for both user and item')
 parser.add_argument('-ln', '--layer_num', default=3, type=int,
-                    help='the layer number for gcn based models')
+                    help='the layer number for graph convolution network based models')
 # Regularization relevant args
-parser.add_argument('-wd', '--weight_decay', default=1e-3, type=float,
-                    help='the weight decay of l2 regular')
-parser.add_argument('-a', '--alpha', default=1e-5, type=float,
-                    help='the coefficient of item similar regularization term')
+parser.add_argument('-wd', '--weight_decay', default=1e-2, type=float,
+                    help='the weight decay of l2 regularization term')
+parser.add_argument('-t', '--theta', default=1e-2, type=float,
+                    help='the threshold that using explainable regularization term')
+parser.add_argument('-a', '--alpha', default=1e-3, type=float,
+                    help='the hyperparameter of item similar regularization term')
 parser.add_argument('-b', '--beta', default=1e-3, type=float,
-                    help='the coefficient for user and positive item regularization term')
+                    help='the hyperparameter for user and positive item regularization term')
 parser.add_argument('-g', '--gamma', default=1e-3, type=float,
-                    help='the coefficient for user and negative item regularization term')
+                    help='the hyperparameter for user and negative item regularization term')
 # Dataset relevant args
 parser.add_argument('-d', '--data_name', default='ml-100k', type=str,
                     help='chose a target dataset')

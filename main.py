@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # Record results of each epoch
     recorder = Recorder(cmp_key='hr')
 
-    model_dir = path.join(root_dir, 'ckpt', config['data_name'])
+    model_dir = path.join(root_dir, 'ckpts', config['data_name'])
     if not path.exists(model_dir):
         os.mkdir(model_dir)
 
@@ -66,21 +66,18 @@ if __name__ == '__main__':
     hr, ndcg, mep, wmep, test_time = tester.test()
 
     recorder.record(0, hr, ndcg, mep, wmep)
-    print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' %
-          (hr, ndcg, mep, wmep, test_time))
+    print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
 
     for epoch in range(1, config['epoch_num'] + 1):
         loss, train_time = trainer.train()
-        print('Epoch[%d/%d], loss=%.4f, train_time=%.4f' %
-              (epoch, config['epoch_num'], loss, train_time))
+        print('Epoch[%d/%d], loss=%.4f, train_time=%.4f' % (epoch, config['epoch_num'], loss, train_time))
 
         if epoch % config['interval'] == 0:
             util.color_print('[TEST]')
             hr, ndcg, mep, wmep, test_time = tester.test()
 
             is_update = recorder.record(epoch, hr, ndcg, mep, wmep)
-            print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (
-                hr, ndcg, mep, wmep, test_time))
+            print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
             if is_update:
                 torch.save(model.state_dict(), model_path)
 

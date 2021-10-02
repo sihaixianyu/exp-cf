@@ -46,8 +46,7 @@ if __name__ == '__main__':
     recorder = Recorder(cmp_key='hr')
 
     model_dir = path.join(root_dir, 'ckpts', config['data_name'])
-    if not path.exists(model_dir):
-        os.mkdir(model_dir)
+    util.check_dir(model_dir)
 
     model_path = model.get_model_path(model_dir)
     if not path.exists(model_path) or config['retrain']:

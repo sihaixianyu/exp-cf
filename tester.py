@@ -21,7 +21,7 @@ class Tester:
         pass
 
     @timer
-    def __leave_one_out_test(self) -> Tuple[float, float, float]:
+    def __leave_one_out_test(self):
         self.model.eval()
 
         hr_list, ndcg_list, mep_list, wmep_list = [], [], [], []

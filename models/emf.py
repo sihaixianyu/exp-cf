@@ -3,8 +3,8 @@ from os import path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from dataset import Dataset
+
 from models import BaseModel
 
 
@@ -39,7 +39,7 @@ class EMF(BaseModel):
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
         exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
-        loss = torch.mean(F.softplus((neg_ratings - pos_ratings)) * exp_coef)
+        loss = torch.mean(- F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef)
 
         reg_term = (1 / 2) * (user_embs.norm(2).pow(2) +
                               pos_item_embs.norm(2).pow(2) +

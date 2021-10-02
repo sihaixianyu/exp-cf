@@ -5,14 +5,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--cuda_num', default='2', type=str,
                     help='chose a cuda device')
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='semf', type=str,
+parser.add_argument('-m', '--model_name', default='cemf', type=str,
                     help='chose a target models')
 parser.add_argument('-ld', '--latent_dim', default=128, type=int,
                     help='the dimesion of latent space for both user and item')
 parser.add_argument('-ln', '--layer_num', default=3, type=int,
                     help='the layer number for graph convolution network based models')
 # Regularization relevant args
-parser.add_argument('-wd', '--weight_decay', default=1e-2, type=float,
+parser.add_argument('-wd', '--weight_decay', default=1e-3, type=float,
                     help='the weight decay of l2 regularization term')
 parser.add_argument('-t', '--theta', default=1e-2, type=float,
                     help='the threshold that using explainable regularization term')
@@ -36,7 +36,7 @@ parser.add_argument('-lr', '--learning_rate', default=1e-3, type=float,
                     help='the learning rate of trining process')
 parser.add_argument('-e', '--epoch_num', default=300, type=int,
                     help='the total number of training epoch')
-parser.add_argument('-r', '--retrain', action='store_true', default=True,
+parser.add_argument('-r', '--retrain', action='store_true', default=False,
                     help='retrain the models from scratch')
 # Test relevant args
 parser.add_argument('-k', '--topk', default=10, type=int,

@@ -1,4 +1,5 @@
 import os
+import os.path as path
 import sys
 import time
 from collections import Iterable
@@ -26,9 +27,14 @@ def timer(func):
 
 def check_file(*files: str):
     for file in files:
-        if not os.path.exists(file):
+        if not path.exists(file):
             raise FileNotFoundError(
                 '{} not exist, please confirm the presence of the target!'.format(file))
+
+
+def check_dir(dir_path: str):
+    if not path.exists(dir_path):
+        os.mkdir(dir_path)
 
 
 def color_print(content: str):

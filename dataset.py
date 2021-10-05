@@ -15,7 +15,7 @@ class Dataset:
     def __init__(self, data_dir: str, config: dict):
         self.data_dir = data_dir
         self.data_name = config['data_name']
-        self.neighbor_num = config['neighbor_num']
+        self.nbr_num = config['nbr_num']
         self.similarity = config['similarity']
 
         self.train_arr, self.test_arr, self.neg_dict, self.train_csrmat, self.full_csrmat = self.__load_data()
@@ -37,10 +37,13 @@ class Dataset:
         util.check_dir(self.temp_dir)
 
         self.user_pos_items = self.__build_user_pos_items()
-        # self.item_pos_users = self.__build_item_pos_users()
+        self.item_pos_users = self.__build_item_pos_users()
 
-        # self.user_sim_mat = self.__build_user_sim_mat()
+        self.user_sim_mat = self.__build_user_sim_mat()
         self.item_sim_mat = self.__build_item_sim_mat()
+
+        self.user_nbr_mat = self.__build_user_nbr_mat()
+        self.item_nbr_mat = self.__build_item_nbr_mat()
 
         self.train_exp_mat = self.__build_train_exp_mat()
         self.full_exp_mat = self.__build_full_exp_mat()
@@ -118,7 +121,7 @@ class Dataset:
         return user_sim_mat
 
     def __build_item_sim_mat(self):
-        item_sim_path = path.join(self.temp_dir, 'item_sim_mat_{}{}.npy'.format(self.similarity, self.neighbor_num))
+        item_sim_path = path.join(self.temp_dir, 'item_sim_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
         if path.exists(item_sim_path):
             print('Loading item similarity matrix...')
             item_sim_mat = np.load(item_sim_path)
@@ -130,49 +133,45 @@ class Dataset:
         return item_sim_mat
 
     def __build_user_nbr_mat(self):
-        user_nbr_list = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
+        user_nbr_list = [np.argpartition(row, - self.nbr_num)[- self.nbr_num:]
                          for row in self.user_sim_mat]
-        
+
         return np.array(user_nbr_list)
 
     def __build_item_nbr_mat(self):
-        item_nbr_list = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
+        item_nbr_list = [np.argpartition(row, - self.nbr_num)[- self.nbr_num:]
                          for row in self.item_sim_mat]
-        
+
         return np.array(item_nbr_list)
 
     def __build_train_exp_mat(self):
-        train_exp_path = path.join(self.temp_dir, 'train_exp_mat_{}{}.npy'.format(self.similarity, self.neighbor_num))
+        train_exp_path = path.join(self.temp_dir, 'train_exp_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
         if path.exists(train_exp_path):
             print('Loading train explainable matrix...')
             train_exp_mat = np.load(train_exp_path)
         else:
-            neighbors = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
-                         for row in self.item_sim_mat]
             print('Building train explainable matrix...')
             train_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
             for user in tqdm(range(self.user_num), file=sys.stdout):
                 for item in range(self.item_num):
                     train_exp_mat[user][item] = sum(
-                        [self.train_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
+                        [self.train_mat[user][neighbor] for neighbor in self.item_nbr_mat[item]]) / self.nbr_num
             np.save(train_exp_path, train_exp_mat)
 
         return train_exp_mat
 
     def __build_full_exp_mat(self):
-        full_exp_path = path.join(self.temp_dir, 'full_exp_mat_{}{}.npy'.format(self.similarity, self.neighbor_num))
+        full_exp_path = path.join(self.temp_dir, 'full_exp_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
         if path.exists(full_exp_path):
             print('Loading full explainable matrix...')
             full_exp_mat = np.load(full_exp_path)
         else:
-            neighbors = [np.argpartition(row, - self.neighbor_num)[- self.neighbor_num:]
-                         for row in self.item_sim_mat]
             print('Building full explainable matrix...')
             full_exp_mat = np.zeros((self.user_num, self.item_num), np.float32)
             for user in tqdm(range(self.user_num), file=sys.stdout):
                 for item in range(self.item_num):
                     full_exp_mat[user][item] = sum(
-                        [self.train_mat[user][neighbor] for neighbor in neighbors[item]]) / self.neighbor_num
+                        [self.train_mat[user][neighbor] for neighbor in self.item_nbr_mat[item]]) / self.nbr_num
             np.save(full_exp_path, full_exp_mat)
 
         return full_exp_mat

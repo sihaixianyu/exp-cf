@@ -49,9 +49,9 @@ class LGCN(BaseModel):
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
         bpr_loss = torch.mean(F.softplus(neg_ratings - pos_ratings))
-        reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
-                              pos_item_egos.norm(2).pow(2) +
-                              neg_item_egos.norm(2).pow(2)) / float(len(users))
+        reg_term = (1 / 2) * (
+                user_egos.norm(2).pow(2) + pos_item_egos.norm(2).pow(2) + neg_item_egos.norm(2).pow(2)) / float(
+            len(users))
 
         return bpr_loss + reg_term * self.weight_decay
 

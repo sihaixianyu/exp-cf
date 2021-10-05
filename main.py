@@ -43,7 +43,7 @@ if __name__ == '__main__':
     tester = Tester(test_loader, model, dataset.full_exp_mat, config['topk'])
 
     # Record results of each epoch
-    recorder = Recorder(cmp_key='hr')
+    recorder = Recorder(config['interval'], cmp_key='hr')
 
     model_dir = path.join(root_dir, 'ckpts', config['data_name'])
     util.check_dir(model_dir)
@@ -75,9 +75,12 @@ if __name__ == '__main__':
             util.color_print('[TEST]')
             hr, ndcg, mep, wmep, test_time = tester.test()
 
-            is_update = recorder.record(epoch, hr, ndcg, mep, wmep)
+            is_update, not_improve = recorder.record(epoch, hr, ndcg, mep, wmep)
             print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
+
             if is_update:
                 torch.save(model.state_dict(), model_path)
+            if not_improve >= config['early_stop']:
+                break
 
     recorder.print_best(model_name.upper(), keys=['hr', 'ndcg', 'mep', 'wmep'])

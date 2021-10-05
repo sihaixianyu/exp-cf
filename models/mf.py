@@ -38,9 +38,9 @@ class MF(BaseModel):
 
         loss = torch.mean(F.softplus(neg_ratings - pos_ratings))
 
-        reg_term = (1 / 2) * (user_embs.norm(2).pow(2) +
-                              pos_item_embs.norm(2).pow(2) +
-                              neg_item_embs.norm(2).pow(2)) / float(len(users))
+        reg_term = (1 / 2) * (
+                user_embs.norm(2).pow(2) + pos_item_embs.norm(2).pow(2) + neg_item_embs.norm(2).pow(2)) / float(
+            len(users))
 
         return loss + self.weight_decay * reg_term
 

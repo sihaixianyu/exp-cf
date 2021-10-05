@@ -6,7 +6,7 @@ from collections import Iterable
 from pprint import pprint
 
 import numpy as np
-from scipy.stats import pearsonr
+import copent
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.std import tqdm
 
@@ -18,7 +18,7 @@ def timer(func):
         res = func(*args)
         end_time = time.time()
         if isinstance(res, Iterable) and not isinstance(res, str):
-            return (*res, end_time - start_time)
+            return *res, end_time - start_time
         else:
             return res, end_time - start_time
 
@@ -54,18 +54,18 @@ def sep_print(obj: any, start=True, end=True, desc=None, num=80):
         print('-' * num)
 
 
-def calc_cosine_similarity(mat: np.ndarray):
+def calc_cosine_similarity(mat: np.ndarray) -> np.ndarray:
     sim_mat = cosine_similarity(mat)
     np.fill_diagonal(sim_mat, 0)
 
     return sim_mat
 
 
-def calc_pearson_similarity(mat: np.ndarray):
+def calc_pearson_similarity(mat: np.ndarray) -> np.ndarray:
     sim_mat = np.zeros(shape=(mat.shape[0], mat.shape[0]))
     for i in tqdm(range(mat.shape[0]), file=sys.stdout):
         for j in range(i + 1, mat.shape[0]):
-            sim = pearsonr(mat[i], mat[j])[0]
+            sim = np.corrcoef(mat[i], mat[j])[0]
             sim_mat[i][j] = sim
     sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
 

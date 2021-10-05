@@ -52,9 +52,9 @@ class EGCN(BaseModel):
 
         exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
         loss = - (F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef).mean()
-        reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
-                              pos_item_egos.norm(2).pow(2) +
-                              neg_item_egos.norm(2).pow(2)) / float(len(users))
+        reg_term = (1 / 2) * (
+                user_egos.norm(2).pow(2) + pos_item_egos.norm(2).pow(2) + neg_item_egos.norm(2).pow(2)) / float(
+            len(users))
 
         return loss + reg_term * self.weight_decay
 

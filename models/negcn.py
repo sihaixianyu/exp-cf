@@ -5,9 +5,8 @@ import scipy.sparse as sp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dataset import Dataset
-from torch import FloatTensor
 
+from dataset import Dataset
 from models import BaseModel
 
 
@@ -18,16 +17,18 @@ class NEGCN(BaseModel):
         self.latent_dim = config['latent_dim']
         self.layer_num = config['layer_num']
         self.weight_decay = config['weight_decay']
+
         self.theta = config['theta']
+        self.alpha = config['alpha']
         self.beta = config['beta']
-        self.gamma = config['gamma']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
         self.graph = self.__build_graph(dataset.train_csrmat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
+
         self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
+        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
 
         self.to(self.device)
 
@@ -56,9 +57,9 @@ class NEGCN(BaseModel):
         exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
         loss = - (F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef).mean()
 
-        reg_term = (1 / 2) * (user_egos.norm(2).pow(2) +
-                              pos_item_egos.norm(2).pow(2) +
-                              neg_item_egos.norm(2).pow(2)) / float(len(users))
+        reg_term = (1 / 2) * (
+                user_egos.norm(2).pow(2) + pos_item_egos.norm(2).pow(2) + neg_item_egos.norm(2).pow(2)) / float(
+            len(users))
 
         W_pos = self.ui_exp_tsr[users, pos_items]
         W_neg = self.ui_exp_tsr[users, neg_items]
@@ -72,7 +73,7 @@ class NEGCN(BaseModel):
         pos_exp_reg = (1 / 2) * (pos_emb_diffs * W_pos).norm().pow(2) / float(len(users))
         neg_exp_reg = (1 / 2) * (neg_emb_diffs * W_neg).norm().pow(2) / float(len(users))
 
-        return loss + self.weight_decay * reg_term + self.beta * pos_exp_reg + self.gamma * neg_exp_reg
+        return loss + self.weight_decay * reg_term + self.alpha * pos_exp_reg + self.beta * neg_exp_reg
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -87,33 +88,17 @@ class NEGCN(BaseModel):
         return pred_ratings
 
     def get_model_path(self, model_dir: str):
-        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_t{}_b{}_g{}.pth'.format(self.model_name,
+        return path.join(model_dir, '{}_ld{}_ln{}_wd{}_t{}_a{}_b{}.pth'.format(self.model_name,
                                                                                self.latent_dim,
                                                                                self.layer_num,
                                                                                self.weight_decay,
                                                                                self.theta,
-                                                                               self.beta,
-                                                                               self.gamma))
-
-    def __compute(self):
-        embed_user_weight = self.embed_user.weight
-        embed_item_weight = self.embed_item.weight
-        emb_weight = torch.cat([embed_user_weight, embed_item_weight])
-
-        embs = [emb_weight]
-        for i in range(self.layer_num):
-            emb_weight = torch.sparse.mm(self.graph, emb_weight)
-            embs.append(emb_weight)
-
-        embs = torch.stack(embs, dim=1)
-        light_out = torch.mean(embs, dim=1)
-        all_user_embs, all_item_embs = torch.split(light_out, [self.user_num, self.item_num])
-
-        return all_user_embs, all_item_embs
+                                                                               self.alpha,
+                                                                               self.beta))
 
     def __build_graph(self, ui_csr_mat):
         adj_mat = sp.dok_matrix((self.user_num + self.item_num,
-                                self.user_num + self.item_num), dtype=np.float32)
+                                 self.user_num + self.item_num), dtype=np.float32)
         adj_mat = adj_mat.tolil()
         R = ui_csr_mat.tolil()
         adj_mat[:self.user_num, self.user_num:] = R
@@ -138,6 +123,22 @@ class NEGCN(BaseModel):
         graph = torch.sparse.FloatTensor(idx_tsr, val_tsr, torch.Size(coo_mat.shape))
 
         return graph.coalesce().to(self.device)
+
+    def __compute(self):
+        embed_user_weight = self.embed_user.weight
+        embed_item_weight = self.embed_item.weight
+        emb_weight = torch.cat([embed_user_weight, embed_item_weight])
+
+        embs = [emb_weight]
+        for i in range(self.layer_num):
+            emb_weight = torch.sparse.mm(self.graph, emb_weight)
+            embs.append(emb_weight)
+
+        embs = torch.stack(embs, dim=1)
+        light_out = torch.mean(embs, dim=1)
+        all_user_embs, all_item_embs = torch.split(light_out, [self.user_num, self.item_num])
+
+        return all_user_embs, all_item_embs
 
     def __build_ui_exp_tsr(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)

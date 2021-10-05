@@ -6,7 +6,8 @@ import util
 
 
 class Recorder:
-    def __init__(self, cmp_key='hr'):
+    def __init__(self, interval: int, cmp_key='hr'):
+        self.interval = interval
         self.cmp_key = cmp_key
 
         self.epoch_list = []
@@ -22,11 +23,12 @@ class Recorder:
         self.best_wmep = 0
 
         self.is_update = True
+        self.not_improve = 0
 
         if cmp_key not in ('hr', 'ndcg', 'mep', 'wmep'):
             raise ValueError('Metric: {} is not available'.format(cmp_key))
 
-    def record(self, epoch: int, hr: float, ndcg: float, mep: float, wmep: float) -> bool:
+    def record(self, epoch: int, hr: float, ndcg: float, mep: float, wmep: float) -> Tuple[bool, int]:
         self.epoch_list.append(epoch)
         self.hr_list.append(hr)
         self.ndcg_list.append(ndcg)
@@ -47,7 +49,12 @@ class Recorder:
             if self.best_wmep <= wmep:
                 self.__update(epoch, hr, ndcg, mep, wmep)
 
-        return self.is_update
+        if self.is_update:
+            self.not_improve = 0
+        else:
+            self.not_improve += self.interval
+
+        return self.is_update, self.not_improve
 
     def print_best(self, model_name: str, keys: List[str]):
         for key in keys:
@@ -60,7 +67,7 @@ class Recorder:
                 model_name.upper(), key.upper(), epoch, hr, ndcg, mep, wmep)
             util.sep_print(res_str, end=False) if idx != len(keys) - 1 else util.sep_print(res_str)
 
-    def __find_best(self, key='hr') -> Tuple[int, float, float]:
+    def __find_best(self, key='hr') -> Tuple[int, float, float, float, float]:
         if key == 'hr':
             idx = np.argsort(self.hr_list)[-1]
         elif key == 'ndcg':

@@ -41,9 +41,9 @@ class EMF(BaseModel):
         exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
         loss = torch.mean(- F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef)
 
-        reg_term = (1 / 2) * (user_embs.norm(2).pow(2) +
-                              pos_item_embs.norm(2).pow(2) +
-                              neg_item_embs.norm(2).pow(2)) / float(len(users))
+        reg_term = (1 / 2) * (
+                user_embs.norm(2).pow(2) + pos_item_embs.norm(2).pow(2) + neg_item_embs.norm(2).pow(2)) / float(
+            len(users))
 
         return loss + self.weight_decay * reg_term
 

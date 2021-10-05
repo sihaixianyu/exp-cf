@@ -8,10 +8,9 @@ class BaseModel(nn.Module):
     def __init__(self, dataset: Dataset):
         super(BaseModel, self).__init__()
         self.data_name = dataset.data_name
-        self.neighbor_num = dataset.neighbor_num
+        self.neighbor_num = dataset.nbr_num
         self.user_num = dataset.user_num
         self.item_num = dataset.item_num
-        self.ui_exp_mat = dataset.train_exp_mat
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -22,4 +21,4 @@ class BaseModel(nn.Module):
         raise NotImplementedError('A models must implement predict() function!')
 
     def get_model_path(self, model_dir: str):
-        raise NotImplementedError('A models must implement get_model_suffix() function!')
+        raise NotImplementedError('A models must implement get_model_path() function!')

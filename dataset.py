@@ -30,6 +30,8 @@ class Dataset:
             self.similarity_func = util.calc_cosine_similarity
         elif self.similarity == 'pearson':
             self.similarity_func = util.calc_pearson_similarity
+        elif self.similarity == 'kendall':
+            self.similarity_func = util.calc_kendall_similarity
         else:
             raise ValueError('The target similarity function {} not exist!'.format(self.similarity))
 
@@ -109,7 +111,7 @@ class Dataset:
         return item_pos_users
 
     def __build_user_sim_mat(self):
-        user_sim_path = path.join(self.temp_dir, 'user_sim_mat_{}.npy'.format(self.similarity))
+        user_sim_path = path.join(self.temp_dir, 'user_sim_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
         if path.exists(user_sim_path):
             print('Loading user similarity matrix...')
             user_sim_mat = np.load(user_sim_path)

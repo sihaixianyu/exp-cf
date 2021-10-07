@@ -2,11 +2,11 @@ import os
 import os.path as path
 import sys
 import time
-from collections import Iterable
+from collections.abc import Iterable
 from pprint import pprint
+import scipy.stats as stats
 
 import numpy as np
-import copent
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.std import tqdm
 
@@ -18,7 +18,7 @@ def timer(func):
         res = func(*args)
         end_time = time.time()
         if isinstance(res, Iterable) and not isinstance(res, str):
-            return *res, end_time - start_time
+            return (*res, end_time - start_time)
         else:
             return res, end_time - start_time
 
@@ -65,8 +65,26 @@ def calc_pearson_similarity(mat: np.ndarray) -> np.ndarray:
     sim_mat = np.zeros(shape=(mat.shape[0], mat.shape[0]))
     for i in tqdm(range(mat.shape[0]), file=sys.stdout):
         for j in range(i + 1, mat.shape[0]):
-            sim = np.corrcoef(mat[i], mat[j])[0]
+            sim = stats.pearsonr(mat[i], mat[j])[0]
             sim_mat[i][j] = sim
     sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
 
     return sim_mat
+
+
+def calc_kendall_similarity(mat: np.ndarray) -> np.ndarray:
+    sim_mat = np.zeros(shape=(mat.shape[0], mat.shape[0]))
+    for i in tqdm(range(mat.shape[0]), file=sys.stdout):
+        for j in range(i + 1, mat.shape[0]):
+            sim = stats.kendalltau(mat[i], mat[j])[0]
+            sim_mat[i][j] = sim
+    sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
+
+    return sim_mat
+
+
+if __name__ == '__main__':
+    a = np.array([1, 2, 3, 4, 5], dtype=float)
+    b = np.array([1, 2, 4, 4, 5], dtype=float)
+    print(stats.pearsonr(a, b)[0])
+    print(stats.kendalltau(a, b)[0])

@@ -23,8 +23,7 @@ class EGCN(BaseModel):
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
         self.graph = self.__build_graph(dataset.train_csrmat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
-        self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
+        self.ui_exp_mat = self.__build_ui_exp_mat(dataset.train_exp_mat)
 
         self.to(self.device)
 
@@ -50,8 +49,9 @@ class EGCN(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
+        exp_coef = self.ui_exp_mat[users, pos_items] * (1 - self.ui_exp_mat[users, neg_items])
         loss = - (F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef).mean()
+
         reg_term = (1 / 2) * (
                 user_egos.norm(2).pow(2) + pos_item_egos.norm(2).pow(2) + neg_item_egos.norm(2).pow(2)) / float(
             len(users))
@@ -119,8 +119,5 @@ class EGCN(BaseModel):
 
         return graph.coalesce().to(self.device)
 
-    def __build_ui_exp_tsr(self, ui_exp_mat):
+    def __build_ui_exp_mat(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)
-
-    def __build_item_sim_tsr(self, item_sim_tsr):
-        return torch.from_numpy(item_sim_tsr).to(self.device)

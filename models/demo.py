@@ -8,9 +8,9 @@ from dataset import Dataset
 from models import BaseModel
 
 
-class EMF(BaseModel):
+class Demo(BaseModel):
     def __init__(self, dataset: Dataset, config: dict):
-        super(EMF, self).__init__(dataset)
+        super(Demo, self).__init__(dataset)
         self.model_name = config['model_name']
         self.latent_dim = config['latent_dim']
         self.weight_decay = config['weight_decay']
@@ -18,6 +18,7 @@ class EMF(BaseModel):
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
+        self.item_sim_mat = self.__build_item_sim_mat(dataset.item_sim_mat)
         self.ui_exp_mat = self.__build_ui_exp_mat(dataset.train_exp_mat)
 
         self.to(self.device)
@@ -38,7 +39,11 @@ class EMF(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_mat[users, pos_items] * (1 - self.ui_exp_mat[users, neg_items])
+        sim_mat = self.item_sim_mat[pos_items, neg_items]
+        sim_mat[sim_mat <= 0.4] = 1
+        sim_mat[sim_mat != 1] = 0
+
+        exp_coef = self.ui_exp_mat[users, pos_items] * (1 - self.ui_exp_mat[users, neg_items]) * sim_mat
         loss = torch.mean(- F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef)
 
         reg_term = (1 / 2) * (
@@ -66,3 +71,6 @@ class EMF(BaseModel):
 
     def __build_ui_exp_mat(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)
+
+    def __build_item_sim_mat(self, item_sim_mat):
+        return torch.from_numpy(item_sim_mat).to(self.device)

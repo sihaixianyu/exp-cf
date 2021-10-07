@@ -5,5 +5,4 @@ from models.egcn import EGCN
 from models.emf import EMF
 from models.lgcn import LGCN
 from models.mf import MF
-from models.negcn import NEGCN
-from models.nemf import NEMF
+from models.demo import Demo

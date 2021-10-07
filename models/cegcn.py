@@ -20,13 +20,13 @@ class CEGCN(BaseModel):
 
         self.theta = config['theta']
         self.alpha = config['alpha']
+        self.beta = config['beta']
 
         self.embed_user = nn.Embedding(self.user_num, self.latent_dim)
         self.embed_item = nn.Embedding(self.item_num, self.latent_dim)
 
         self.graph = self.__build_graph(dataset.train_csrmat)
-        self.ui_exp_tsr = self.__build_ui_exp_tsr(dataset.train_exp_mat)
-        self.item_sim_tsr = self.__build_item_sim_tsr(dataset.item_sim_mat)
+        self.ui_exp_mat = self.__build_ui_exp_mat(dataset.train_exp_mat)
 
         self.to(self.device)
 
@@ -52,20 +52,26 @@ class CEGCN(BaseModel):
         pos_ratings = torch.sum(user_embs * pos_item_embs, dim=1)
         neg_ratings = torch.sum(user_embs * neg_item_embs, dim=1)
 
-        exp_coef = self.ui_exp_tsr[users, pos_items] * (1 - self.ui_exp_tsr[users, neg_items])
+        pos_exp_mat = self.ui_exp_mat[users, pos_items]
+        neg_exp_mat = self.ui_exp_mat[users, neg_items]
+
+        exp_coef = pos_exp_mat * (1 - neg_exp_mat)
         loss = - (F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef).mean()
 
         reg_term = (1 / 2) * (
                 user_egos.norm(2).pow(2) + pos_item_egos.norm(2).pow(2) + neg_item_egos.norm(2).pow(2)) / float(
             len(users))
 
-        W_pos = self.ui_exp_tsr[users, pos_items]
-        W_pos[W_pos < self.theta] = 0
+        pos_exp_mat[pos_exp_mat < self.theta] = 0
+        neg_exp_mat[neg_exp_mat < self.theta] = 0
 
         pos_emb_diffs = torch.sum((user_embs - pos_item_embs), dim=1)
-        pos_exp_reg = (1 / 2) * (pos_emb_diffs * W_pos).norm().pow(2) / float(len(users))
+        neg_emb_diffs = torch.sum((user_embs - neg_item_embs), dim=1)
 
-        return loss + self.weight_decay * reg_term + self.alpha * pos_exp_reg
+        pos_exp_reg = (1 / 2) * (pos_emb_diffs * pos_exp_mat).norm().pow(2) / float(len(users))
+        neg_exp_reg = (1 / 2) * (neg_emb_diffs * neg_exp_mat).norm().pow(2) / float(len(users))
+
+        return loss + self.weight_decay * reg_term + self.alpha * pos_exp_reg + self.beta * neg_exp_reg
 
     def predict(self, batch_users, batch_items):
         all_user_embs, all_item_embs = self.__compute()
@@ -85,7 +91,8 @@ class CEGCN(BaseModel):
                                                                            self.layer_num,
                                                                            self.weight_decay,
                                                                            self.theta,
-                                                                           self.alpha))
+                                                                           self.alpha,
+                                                                           self.beta))
 
     def __compute(self):
         embed_user_weight = self.embed_user.weight
@@ -131,8 +138,5 @@ class CEGCN(BaseModel):
 
         return graph.coalesce().to(self.device)
 
-    def __build_ui_exp_tsr(self, ui_exp_mat):
+    def __build_ui_exp_mat(self, ui_exp_mat):
         return torch.from_numpy(ui_exp_mat).to(self.device)
-
-    def __build_item_sim_tsr(self, item_sim_tsr):
-        return torch.from_numpy(item_sim_tsr).to(self.device)

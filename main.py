@@ -16,7 +16,7 @@ from tester import Tester
 from trainer import Trainer
 
 root_dir = '.'
-# root_dir = 'drive/MyDrive/rec-cf/'
+# root_dir = 'drive/MyDrive/exp-cf/'
 
 if __name__ == '__main__':
     np.random.seed(2021)
@@ -84,3 +84,4 @@ if __name__ == '__main__':
                 break
 
     recorder.print_best(model_name.upper(), keys=['hr', 'ndcg', 'mep', 'wmep'])
+

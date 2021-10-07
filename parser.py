@@ -5,25 +5,25 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-c', '--cuda_num', default='2', type=str,
                     help='chose a cuda device')
 # Model relevant args
-parser.add_argument('-m', '--model_name', default='nemf', type=str,
+parser.add_argument('-m', '--model_name', default='cemf', type=str,
                     help='chose a target models')
 parser.add_argument('-ld', '--latent_dim', default=128, type=int,
                     help='the dimesion of latent space for both user and item')
 parser.add_argument('-ln', '--layer_num', default=3, type=int,
                     help='the layer number for graph convolution network based models')
 # Regularization relevant args
-parser.add_argument('-wd', '--weight_decay', default=1e-2, type=float,
+parser.add_argument('-wd', '--weight_decay', default=1e-3, type=float,
                     help='the weight decay of l2 regularization term')
-parser.add_argument('-t', '--theta', default=1e-2, type=float,
+parser.add_argument('-t', '--theta', default=1e-1, type=float,
                     help='the threshold that using explainable regularization term')
 parser.add_argument('-a', '--alpha', default=1e-3, type=float,
                     help='the hyperparameter of item similar regularization term')
-parser.add_argument('-b', '--beta', default=1e-9, type=float,
+parser.add_argument('-b', '--beta', default=1e-3, type=float,
                     help='the hyperparameter for user and positive item regularization term')
 # Dataset relevant args
 parser.add_argument('-d', '--data_name', default='ml-100k', type=str,
                     help='chose a target dataset')
-parser.add_argument('-s', '--similarity', default='cosine', type=str,
+parser.add_argument('-s', '--similarity', default='kendall', type=str,
                     help='the similarity calculation method for training data')
 parser.add_argument('-n', '--nbr_num', default=25, type=int,
                     help='the neighbor number for building explainable matrix')
@@ -36,7 +36,7 @@ parser.add_argument('-e', '--epoch_num', default=300, type=int,
                     help='the total number of training epoch')
 parser.add_argument('-es', '--early_stop', default=50, type=int,
                     help='the epoch num of early stop')
-parser.add_argument('-r', '--retrain', action='store_true', default=False,
+parser.add_argument('-r', '--retrain', action='store_true', default=True,
                     help='retrain the models from scratch')
 # Test relevant args
 parser.add_argument('-k', '--topk', default=10, type=int,

@@ -4,6 +4,7 @@ from os import path
 from parser import parser
 
 import numpy as np
+import pandas
 import torch
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -30,17 +31,13 @@ if __name__ == '__main__':
     data_dir = path.join(root_dir, 'data/', config['data_name'])
     dataset = Dataset(data_dir, config)
 
-    # Warning: we must set test loader batch_size=100 due to our leave-on-out evaluation strategy
-    train_loader = DataLoader(dataset.get_train_data(), batch_size=config['batch_size'], shuffle=True)
-    test_loader = DataLoader(dataset.get_test_data(), batch_size=100, shuffle=False)
-
     model_name = config['model_name']
     model_class = getattr(models, model_name.upper())
     model = model_class(dataset, config)
     optimizer = Adam(model.parameters(), lr=config['learning_rate'])
 
-    trainer = Trainer(train_loader, model, optimizer)
-    tester = Tester(test_loader, model, dataset.full_exp_mat, config['topk'])
+    trainer = Trainer(dataset, model, optimizer, config['batch_size'])
+    tester = Tester(dataset, model, dataset.full_exp_mat, config['topk'])
 
     # Record results of each epoch
     recorder = Recorder(config['interval'], cmp_key='hr')
@@ -75,13 +72,13 @@ if __name__ == '__main__':
             util.color_print('[TEST]')
             hr, ndcg, mep, wmep, test_time = tester.test()
 
-            is_update, not_improve = recorder.record(epoch, hr, ndcg, mep, wmep)
+            is_update, no_improve_cnt = recorder.record(epoch, hr, ndcg, mep, wmep)
             print('Result: hr=%.4f, ndcg=%.4f, mep=%.4f, wmep=%.4f, test_time=%.4f' % (hr, ndcg, mep, wmep, test_time))
 
             if is_update:
                 torch.save(model.state_dict(), model_path)
-            if not_improve >= config['early_stop']:
+            if no_improve_cnt >= config['early_stop']:
                 break
 
+    util.sep_print(config, desc='Config', end=False)
     recorder.print_best(model_name.upper(), keys=['hr', 'ndcg', 'mep', 'wmep'])
-

@@ -30,8 +30,8 @@ class Dataset:
             self.similarity_func = util.calc_cosine_similarity
         elif self.similarity == 'pearson':
             self.similarity_func = util.calc_pearson_similarity
-        elif self.similarity == 'kendall':
-            self.similarity_func = util.calc_kendall_similarity
+        elif self.similarity == 'jaccard':
+            self.similarity_func = util.calc_jaccard_similarity
         else:
             raise ValueError('The target similarity function {} not exist!'.format(self.similarity))
 
@@ -39,21 +39,16 @@ class Dataset:
         util.check_dir(self.temp_dir)
 
         self.user_pos_items = self.__build_user_pos_items()
-        self.item_pos_users = self.__build_item_pos_users()
 
-        self.user_sim_mat = self.__build_user_sim_mat()
         self.item_sim_mat = self.__build_item_sim_mat()
-
-        self.user_nbr_mat = self.__build_user_nbr_mat()
         self.item_nbr_mat = self.__build_item_nbr_mat()
 
         self.train_exp_mat = self.__build_train_exp_mat()
         self.full_exp_mat = self.__build_full_exp_mat()
 
     def get_train_data(self):
-        print('Building train data...')
         train_list = []
-        for user, pos_item in tqdm(self.train_arr, file=sys.stdout):
+        for user, pos_item in self.train_arr:
             pos_items = self.user_pos_items[user]
 
             neg_item = random.randint(0, self.item_num)
@@ -65,9 +60,8 @@ class Dataset:
         return np.array(train_list)
 
     def get_test_data(self):
-        print('Building test data...')
         test_list = []
-        for user, pos_item in tqdm(self.test_arr, file=sys.stdout):
+        for user, pos_item in self.test_arr:
             test_list.append([user, pos_item])
             for i in range(99):
                 test_list.append([user, self.neg_dict[user][i]])
@@ -102,26 +96,6 @@ class Dataset:
 
         return user_pos_items
 
-    def __build_item_pos_users(self):
-        items = list(range(self.item_num))
-        item_pos_users = []
-        for item in items:
-            item_pos_users.append(self.train_csrmat.T[item].nonzero()[1])
-
-        return item_pos_users
-
-    def __build_user_sim_mat(self):
-        user_sim_path = path.join(self.temp_dir, 'user_sim_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
-        if path.exists(user_sim_path):
-            print('Loading user similarity matrix...')
-            user_sim_mat = np.load(user_sim_path)
-        else:
-            print('Building user similarity matrix...')
-            user_sim_mat = self.similarity_func(self.train_mat.T)
-            np.save(user_sim_path, user_sim_mat)
-
-        return user_sim_mat
-
     def __build_item_sim_mat(self):
         item_sim_path = path.join(self.temp_dir, 'item_sim_mat_{}{}.npy'.format(self.similarity, self.nbr_num))
         if path.exists(item_sim_path):
@@ -133,12 +107,6 @@ class Dataset:
             np.save(item_sim_path, item_sim_mat)
 
         return item_sim_mat
-
-    def __build_user_nbr_mat(self):
-        user_nbr_list = [np.argpartition(row, - self.nbr_num)[- self.nbr_num:]
-                         for row in self.user_sim_mat]
-
-        return np.array(user_nbr_list)
 
     def __build_item_nbr_mat(self):
         item_nbr_list = [np.argpartition(row, - self.nbr_num)[- self.nbr_num:]

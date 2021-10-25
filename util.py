@@ -5,9 +5,10 @@ import time
 from collections.abc import Iterable
 from pprint import pprint
 import scipy.stats as stats
+import sklearn.metrics as metrics
+from scipy.spatial.distance import pdist
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 from tqdm.std import tqdm
 
 
@@ -55,7 +56,7 @@ def sep_print(obj: any, start=True, end=True, desc=None, num=80):
 
 
 def calc_cosine_similarity(mat: np.ndarray) -> np.ndarray:
-    sim_mat = cosine_similarity(mat)
+    sim_mat = metrics.pairwise.cosine_similarity(mat)
     np.fill_diagonal(sim_mat, 0)
 
     return sim_mat
@@ -72,11 +73,11 @@ def calc_pearson_similarity(mat: np.ndarray) -> np.ndarray:
     return sim_mat
 
 
-def calc_kendall_similarity(mat: np.ndarray) -> np.ndarray:
+def calc_jaccard_similarity(mat: np.ndarray) -> np.ndarray:
     sim_mat = np.zeros(shape=(mat.shape[0], mat.shape[0]))
     for i in tqdm(range(mat.shape[0]), file=sys.stdout):
         for j in range(i + 1, mat.shape[0]):
-            sim = stats.kendalltau(mat[i], mat[j])[0]
+            sim = 1 - pdist(np.vstack([mat[i], mat[j]]), 'jaccard')
             sim_mat[i][j] = sim
     sim_mat += sim_mat.T - np.diag(sim_mat.diagonal())
 
@@ -84,7 +85,6 @@ def calc_kendall_similarity(mat: np.ndarray) -> np.ndarray:
 
 
 if __name__ == '__main__':
-    a = np.array([1, 2, 3, 4, 5], dtype=float)
-    b = np.array([1, 2, 4, 4, 5], dtype=float)
-    print(stats.pearsonr(a, b)[0])
-    print(stats.kendalltau(a, b)[0])
+    a = np.array([1, 1, 0], dtype=float)
+    b = np.array([1, 1, 1], dtype=float)
+    print(1 - pdist(np.vstack([a, b]), 'jaccard'))

@@ -1,31 +1,27 @@
-from typing import Tuple
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import Dataset, DataLoader
 
 from models import BaseModel
 from util import timer
 
 
 class Tester:
-    def __init__(self, loader: DataLoader, model: BaseModel, full_exp_mat: np.ndarray, topk=10):
-        self.loader = loader
+    def __init__(self, dataset: Dataset, model: BaseModel, full_exp_mat: np.ndarray, topk=10):
+        self.dataset = dataset
         self.model = model
         self.full_exp_mat = full_exp_mat
         self.topk = topk
 
-        self.test = self.__leave_one_out_test
-
-    # Todo: alternative evaluation strategies setting
-    def set_test_method(self, test_method: str):
-        pass
+        # Warning: we must set test loader batch_size=100 due to our leave-on-out evaluation strategy
+        self.test_loader = DataLoader(dataset.get_test_data(), batch_size=100, shuffle=False)
 
     @timer
-    def __leave_one_out_test(self):
+    def test(self):
         self.model.eval()
 
         hr_list, ndcg_list, mep_list, wmep_list = [], [], [], []
-        for batch_data in self.loader:
+        for batch_data in self.test_loader:
             users = batch_data[:, 0]
             items = batch_data[:, 1]
 

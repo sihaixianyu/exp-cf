@@ -45,7 +45,8 @@ class CEMF(BaseModel):
         pos_exp_mat = self.ui_exp_tsr[users, pos_items]
         neg_exp_mat = self.ui_exp_tsr[users, neg_items]
 
-        exp_coef = pos_exp_mat * (1 - neg_exp_mat)
+        # exp_coef = pos_exp_mat * (1 - neg_exp_mat)
+        exp_coef = 1.
         loss = - (F.logsigmoid((pos_ratings - neg_ratings)) * exp_coef).mean()
 
         reg_term = (1 / 2) * (

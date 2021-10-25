@@ -23,7 +23,7 @@ class Recorder:
         self.best_wmep = 0
 
         self.is_update = True
-        self.not_improve = 0
+        self.no_improve_cnt = 0
 
         if cmp_key not in ('hr', 'ndcg', 'mep', 'wmep'):
             raise ValueError('Metric: {} is not available'.format(cmp_key))
@@ -50,11 +50,11 @@ class Recorder:
                 self.__update(epoch, hr, ndcg, mep, wmep)
 
         if self.is_update:
-            self.not_improve = 0
+            self.no_improve_cnt = 0
         else:
-            self.not_improve += self.interval
+            self.no_improve_cnt += self.interval
 
-        return self.is_update, self.not_improve
+        return self.is_update, self.no_improve_cnt
 
     def print_best(self, model_name: str, keys: List[str]):
         for key in keys:
